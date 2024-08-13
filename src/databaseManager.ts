@@ -33,9 +33,9 @@ export default class DatabaseManager {
   addUser(user: User): DatabaseResponse {
     try {
       const stmt = this.database?.prepare(
-        "INSERT INTO user (name, login, password) VALUES (?, ?, ?)"
+        "INSERT INTO user (name, login, email, password) VALUES (?, ?, ?, ?)"
       );
-      stmt?.run(user.name, user.login, user.password);
+      stmt?.run(user.name, user.login, user.email, user.password);
       return { code: 201, message: "User Created" };
     } catch (err) {
       return this.errorDefaultHandler(err);
@@ -65,9 +65,9 @@ export default class DatabaseManager {
   updateUser(user: User): DatabaseResponse {
     try {
       const stmt = this.database?.prepare(
-        "UPDATE user SET name = ?, login = ?, password = ? WHERE id = ?"
+        "UPDATE user SET name = ?, login = ?, email = ?, password = ? WHERE id = ?"
       );
-      stmt?.run(user.name, user.login, user.password, user.id);
+      stmt?.run(user.name, user.login, user.email, user.password, user.id);
       return { code: 202, message: "User Updated" };
     } catch (err) {
       return this.errorDefaultHandler(err);

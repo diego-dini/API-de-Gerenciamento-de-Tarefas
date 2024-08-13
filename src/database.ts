@@ -18,12 +18,14 @@ export type DatabaseResponse = {
  * @typedef {Object} User
  * @property {number} id - ID of the user.
  * @property {string} name - Name of the user.
+ * @property {string} email - Email of the user.
  * @property {string} login - Login of the user.
  * @property {string} password - Password of the user.
  */
 export type User = {
   id?: number;
   name: string;
+  email: string;
   login: string;
   password: string;
 };
