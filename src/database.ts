@@ -44,6 +44,39 @@ export type Team = {
 };
 
 /**
+ * The categorie type used by the database
+ * @typedef {Object} Categorie
+ * @property {number} id - Categorie ID
+ * @property {name} name - Categorie Name
+ */
+export type Category = {
+  id?: number;
+  name: string;
+};
+
+/**
+ * The Priority type used by the database
+ * @typedef {Object} Priority
+ * @property {number} id - Priority ID
+ * @property {name} name - Priority Name
+ */
+export type Priority = {
+  id?: number;
+  name: string;
+};
+
+/**
+ * The Status type used by the database
+ * @typedef {Object} Priority
+ * @property {number} id - Status ID
+ * @property {name} name - Status Name
+ */
+export type Status = {
+  id?: number;
+  name: string;
+};
+
+/**
  * Singleton function that initializes and provides access to a DatabaseManager instance.
  * @returns {DatabaseManager} The DatabaseManager instance.
  */

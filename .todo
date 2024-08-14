@@ -1,0 +1,65 @@
+# Database
+[x] Create Database SCHEMA
+[x] Create Database Response Type
+[x] Create User Type
+[x] Create Team Type
+[x] Create Categorie Type
+[x] Create Priority Type
+[x] Create Status Type
+[ ] Create Task Type
+
+# Database Manager
+[x] Database Manager Constructor
+
+[x] Create User Manager Functions 
+    [x] Add 
+    [x] Delete 
+    [x] Update 
+    [x] Get 
+    [ ] Update to Encrypt Email and Password
+
+[x] Create Team Manager Functions
+    [x] Add
+    [x] Delete
+    [x] Update
+    [x] Get
+
+[x] Create Team Member Manager Functions
+    [x] Add Team Member
+    [x] Remove Team Member
+
+[ ] Create Categorie Manager Functions
+    [ ] Add
+    [ ] Delete
+    [ ] Update
+    [ ] Get
+    
+[ ] Create Priority Manager Functions
+    [ ] Add
+    [ ] Delete
+    [ ] Update
+    [ ] Get
+
+[ ] Create Status Manager Functions
+    [ ] Add
+    [ ] Delete
+    [ ] Update
+    [ ] Get
+
+[ ] Create Task Manager Functions
+    [ ] Add
+    [ ] Delete
+    [ ] Update
+    [ ] Get
+
+# Main APP Functions
+[ ] Default Request Authenticator
+[ ] User Registration
+[ ] User Login and Session Controller
+[ ] Add Team
+    [ ] Invite User to Team
+    [ ] Remove User from Team
+[ ] Add Categories
+[ ] Add Task
+    [ ] Update Task
+[ ] Send Email to Task Responsible

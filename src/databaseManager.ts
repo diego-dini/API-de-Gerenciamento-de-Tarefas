@@ -1,5 +1,5 @@
 import sqlite3, { RunResult } from "better-sqlite3";
-import { User, Team, DatabaseResponse } from "./database";
+import { User, Team, Category, Priority, Status, DatabaseResponse } from "./database";
 import fs from "fs";
 import path from "path";
 
@@ -11,16 +11,18 @@ export default class DatabaseManager {
   debugMode: boolean = true;
 
   /**
-   * The constructor function will load or create a database file. If a database needs to be created, it will be based on the schema.
-   * @param {string} databasePath - The path to the database. The constructor will create a file at this path or load an existing one.
+   * Initializes the database, loading or creating a database file at the specified path.
+   * If the database file does not exist, it will be created based on the provided schema.
+   * @param {string} databasePath - The path to the database file.
    */
   constructor(databasePath: string) {
-    // Load or Create Database for the specified path
+    // Load or create the database at the specified path
     this.database = new sqlite3(databasePath);
 
-    // Path to the SQL file
+    // Path to the SQL schema file
     const schemaPath = path.join(__dirname, "schema.sql");
-    // Read the SQL file
+
+    // Read and execute the SQL schema
     const schema = fs.readFileSync(schemaPath, "utf-8");
     this.database.exec(schema);
   }
@@ -58,7 +60,7 @@ export default class DatabaseManager {
   }
 
   /**
-   * Updates a user in the database based on the user object.
+   * Updates a user's information in the database based on the provided user object.
    * @param {User} user - The updated user object containing new information.
    * @returns {DatabaseResponse} - The database response indicating the status of the update operation.
    */
@@ -83,14 +85,14 @@ export default class DatabaseManager {
     try {
       const stmt = this.database?.prepare("SELECT * FROM user WHERE id = ?");
       const userInformation = stmt?.get(userId);
-      return { code: 200, message: "User retrieved", content: userInformation };
+      return { code: 200, message: "User Retrieved", content: userInformation };
     } catch (err) {
       return this.errorDefaultHandler(err);
     }
   }
 
   /**
-   * Create a new team with the provided information.
+   * Creates a new team with the provided information.
    * @param {Team} team - Information about the team to be created.
    * @returns {DatabaseResponse} - The database response after attempting to add the team.
    */
@@ -107,7 +109,7 @@ export default class DatabaseManager {
   }
 
   /**
-   * Delete a team by its ID.
+   * Deletes a team by its ID.
    * @param {number} teamId - The ID of the team to be deleted.
    * @returns {DatabaseResponse} - The database response after attempting to delete the team.
    */
@@ -122,7 +124,7 @@ export default class DatabaseManager {
   }
 
   /**
-   * Update the information of an existing team.
+   * Updates the information of an existing team.
    * @param {Team} team - The updated team information.
    * @returns {DatabaseResponse} - The database response after attempting to update the team.
    */
@@ -139,7 +141,7 @@ export default class DatabaseManager {
   }
 
   /**
-   * Retrieve a team's information by its ID.
+   * Retrieves a team's information by its ID.
    * @param {number} teamId - The ID of the team to be retrieved.
    * @returns {DatabaseResponse} - The database response after attempting to retrieve the team.
    */
@@ -154,7 +156,7 @@ export default class DatabaseManager {
   }
 
   /**
-   * Add a member to a team.
+   * Adds a member to a team.
    * @param {number} teamId - The ID of the team.
    * @param {number} userId - The ID of the user to be added to the team.
    * @returns {DatabaseResponse} - The database response after attempting to add the member.
@@ -171,10 +173,16 @@ export default class DatabaseManager {
     }
   }
 
+  /**
+   * Removes a member from a team.
+   * @param {number} teamId - The ID of the team.
+   * @param {number} userId - The ID of the user to be removed from the team.
+   * @returns {DatabaseResponse} - The database response after attempting to remove the member.
+   */
   removeTeamMember(teamId: number, userId: number): DatabaseResponse {
     try {
       const stmt = this.database?.prepare(
-        "DELETE FROM team_members WHERE team_id = ? user_id = ?"
+        "DELETE FROM team_members WHERE team_id = ? AND user_id = ?"
       );
       stmt?.run(teamId, userId);
       return { code: 200, message: "Team Member Removed" };
@@ -184,9 +192,69 @@ export default class DatabaseManager {
   }
 
   /**
+   * Creates a new category to be used 
+   * @param category - Category to be created
+   * @returns - Request status
+   */
+  addCategory(category: Category): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("INSERT INTO category (name) VALUES (?)");
+      stmt?.run(category.name);
+      return { code: 200, message: "Category Created" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+
+  /**
+   * Deletes a category from the database
+   * @param categoryId - ID of the category to be deleted
+   * @returns - Request status
+   */
+  deleteCategory(categoryId: number): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("DELETE FROM category WHERE id = ?");
+      stmt?.run(categoryId);
+      return { code: 200, message: "Category Deleted" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+
+  /**
+   * Updates the specified category name
+   * @param category - New category to override the current one
+   * @returns - Request status
+   */
+  updateCategory(category: Category): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("UPDATE category SET name = ? WHERE id = ?");
+      stmt?.run(category.name, category.id);
+      return { code: 200, message: "Category Updated" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+
+  /**
+   * Retrieves a category from the database
+   * @param categoryId - ID of the category to be retrieved
+   * @returns - Request status and content
+   */
+  getCategory(categoryId: number): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("SELECT * FROM category WHERE id = ?");
+      const categoryInformation = stmt?.get(categoryId);
+      return { code: 200, message: "Category Retrieved", content: categoryInformation };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+
+  /**
    * Default error handler for the database manager.
-   * @param {any} err - The error caught.
-   * @returns {Object} - A valid DatabaseResponse object with code 400.
+   * @param {any} err - The caught error.
+   * @returns {DatabaseResponse} - A DatabaseResponse object with a code of 400.
    */
   errorDefaultHandler(err: any): DatabaseResponse {
     // Log the error to the console if debug mode is enabled
@@ -201,4 +269,5 @@ export default class DatabaseManager {
       content: err,
     };
   }
+
 }
