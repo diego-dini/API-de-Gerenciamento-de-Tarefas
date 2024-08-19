@@ -251,6 +251,127 @@ export default class DatabaseManager {
     }
   }
 
+
+  /**
+   * Creates a new priority to be used 
+   * @param priority - Priority to be created
+   * @returns - Request status
+   */
+  addPriority(priority: Priority): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("INSERT INTO priority (name) VALUES (?)");
+      stmt?.run(priority.name);
+      return { code: 200, message: "Priority Created" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+  
+  /**
+   * Deletes a priority from the database
+   * @param priorityId - ID of the priority to be deleted
+   * @returns - Request status
+   */
+  deletePriority(priorityId: number): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("DELETE FROM priority WHERE id = ?");
+      stmt?.run(priorityId);
+      return { code: 200, message: "Priority Deleted" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+  
+  /**
+   * Updates the specified priority name
+   * @param priority - New priority to override the current one
+   * @returns - Request status
+   */
+  updatePriority(priority: Priority): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("UPDATE priority SET name = ? WHERE id = ?");
+      stmt?.run(priority.name, priority.id);
+      return { code: 200, message: "Priority Updated" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
+  
+  /**
+   * Retrieves a priority from the database
+   * @param priorityId - ID of the priority to be retrieved
+   * @returns - Request status and content
+   */
+  getPriority(priorityId: number): DatabaseResponse {
+    try {
+      const stmt = this.database?.prepare("SELECT * FROM priority WHERE id = ?");
+      const priorityInformation = stmt?.get(priorityId);
+      return { code: 200, message: "Priority Retrieved", content: priorityInformation };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }  
+
+  /**
+   * Creates a new status to be used 
+   * @param status - Status to be created
+   * @returns - Request status
+   */
+addStatus(status: Status): DatabaseResponse {
+  try {
+    const stmt = this.database?.prepare("INSERT INTO status (name) VALUES (?)");
+    stmt?.run(status.name);
+    return { code: 200, message: "Status Created" };
+  } catch (err) {
+    return this.errorDefaultHandler(err);
+  }
+}
+
+/**
+   * Deletes a status from the database
+   * @param statusId - ID of the status to be deleted
+   * @returns - Request status
+   */
+deleteStatus(statusId: number): DatabaseResponse {
+  try {
+    const stmt = this.database?.prepare("DELETE FROM status WHERE id = ?");
+    stmt?.run(statusId);
+    return { code: 200, message: "Status Deleted" };
+  } catch (err) {
+    return this.errorDefaultHandler(err);
+  }
+}
+
+/**
+   * Updates the specified status name
+   * @param status - New status to override the current one
+   * @returns - Request status
+   */
+updateStatus(status: Status): DatabaseResponse {
+  try {
+    const stmt = this.database?.prepare("UPDATE status SET name = ? WHERE id = ?");
+    stmt?.run(status.name, status.id);
+    return { code: 200, message: "Status Updated" };
+  } catch (err) {
+    return this.errorDefaultHandler(err);
+  }
+}
+
+/**
+   * Retrieves a status from the database
+   * @param statusId - ID of the status to be retrieved
+   * @returns - Request status and content
+   */
+getStatus(statusId: number): DatabaseResponse {
+  try {
+    const stmt = this.database?.prepare("SELECT * FROM status WHERE id = ?");
+    const statusInformation = stmt?.get(statusId);
+    return { code: 200, message: "Status Retrieved", content: statusInformation };
+  } catch (err) {
+    return this.errorDefaultHandler(err);
+  }
+}
+
   /**
    * Default error handler for the database manager.
    * @param {any} err - The caught error.
