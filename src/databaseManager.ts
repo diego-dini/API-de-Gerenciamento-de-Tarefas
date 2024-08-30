@@ -1,14 +1,111 @@
-import sqlite3, { RunResult } from "better-sqlite3";
-import { User, Team, Category, Priority, Status, DatabaseResponse } from "./database";
+import sqlite3 from "better-sqlite3";
 import fs from "fs";
 import path from "path";
 
 /**
- * Manages interactions with the SQLite database.
+ * A response object representing the result of a database operation.
+ * @typedef {Object} DatabaseResponse
+ * @property {number} code - The status code for the operation.
+ * @property {string | null} message - A message describing the result of the operation.
+ * @property {any} [content] - The content returned from the operation, if any.
+ */
+export type DatabaseResponse = {
+  code: number;
+  message: string | null;
+  content?: any;
+};
+
+/**
+ * Enumeration for the names of database tables.
+ * @enum {string}
+ */
+export enum DatabaseTables {
+  USER = "user",
+  TEAM = "team",
+  CATEGORY = "category",
+  PRIORITY = "priority",
+  STATUS = "status",
+  TASK = "task"
+}
+
+/**
+ * Represents a user in the database.
+ * @typedef {Object} User
+ * @property {number} [id] - The unique identifier for the user.
+ * @property {string} name - The name of the user.
+ * @property {string} email - The email address of the user.
+ * @property {string} login - The login username of the user.
+ * @property {string} password - The password of the user.
+ */
+export type User = {
+  id?: number;
+  name: string;
+  email: string;
+  login: string;
+  password: string;
+};
+
+/**
+ * Represents a team in the database.
+ * @typedef {Object} Team
+ * @property {number} [id] - The unique identifier for the team.
+ * @property {string} name - The name of the team.
+ * @property {number} owner - The ID of the user who owns the team.
+ */
+export type Team = {
+  id?: number;
+  name: string;
+  owner: number;
+};
+
+/**
+ * Represents a category in the database.
+ * @typedef {Object} Category
+ * @property {number} [id] - The unique identifier for the category.
+ * @property {string} name - The name of the category.
+ */
+export type Category = {
+  id?: number;
+  name: string;
+};
+
+/**
+ * Represents a priority level in the database.
+ * @typedef {Object} Priority
+ * @property {number} [id] - The unique identifier for the priority.
+ * @property {string} name - The name of the priority.
+ */
+export type Priority = {
+  id?: number;
+  name: string;
+};
+
+/**
+ * Represents a status in the database.
+ * @typedef {Object} Status
+ * @property {number} [id] - The unique identifier for the status.
+ * @property {string} name - The name of the status.
+ */
+export type Status = {
+  id?: number;
+  name: string;
+};
+
+type DefaultData = User | Team | Category | Priority | Status;
+
+type RequestParams = {
+  table: DatabaseTables;
+  column?: string;
+  value?: string;
+  data?: DefaultData;
+};
+
+/**
+ * Manages interactions with an SQLite database.
  */
 export default class DatabaseManager {
-  database: sqlite3.Database | null = null;
-  debugMode: boolean = true;
+  private database: sqlite3.Database | null = null;
+  private debugMode: boolean = true;
 
   /**
    * Initializes the database, loading or creating a database file at the specified path.
@@ -16,140 +113,146 @@ export default class DatabaseManager {
    * @param {string} databasePath - The path to the database file.
    */
   constructor(databasePath: string) {
-    // Load or create the database at the specified path
     this.database = new sqlite3(databasePath);
 
-    // Path to the SQL schema file
     const schemaPath = path.join(__dirname, "schema.sql");
 
-    // Read and execute the SQL schema
-    const schema = fs.readFileSync(schemaPath, "utf-8");
-    this.database.exec(schema);
+    if (fs.existsSync(schemaPath)) {
+      const schema = fs.readFileSync(schemaPath, "utf-8");
+      this.database.exec(schema);
+    } else {
+      throw new Error("Schema file not found");
+    }
   }
 
   /**
-   * Adds a new user to the database.
-   * @param {User} user - The user to be added to the database.
-   * @returns {DatabaseResponse} - The database response after attempting to add the user.
+   * Gets the order of data columns based on the specified table.
+   * @param {DatabaseTables} table - The table for which to get the column order.
+   * @returns {string[]} - An array of column names in the order they should be used.
+   * @throws {Error} - Throws an error if the table is not recognized.
    */
-  addUser(user: User): DatabaseResponse {
+  private getTypeDataOrder(table: DatabaseTables): string[] {
+    switch (table) {
+      case DatabaseTables.USER:
+        return ["id", "name", "email", "login", "password"];
+      case DatabaseTables.CATEGORY:
+        return ["id", "name"];
+      case DatabaseTables.PRIORITY:
+        return ["id", "name"];
+      case DatabaseTables.STATUS:
+        return ["id", "name"];
+      case DatabaseTables.TEAM:
+        return ["id", "name", "owner"];
+      default:
+        throw new Error(`No Statement Set To ${table}`);
+    }
+  }
+
+  /**
+   * Reorders the data based on the specified column order.
+   * @param {Record<string, any>} data - The data object to reorder.
+   * @param {string[]} order - The desired order of columns.
+   * @returns {Record<string, any>} - The reordered data object.
+   */
+  private reorderData(data: Record<string, any>, order: string[]): Record<string, any> {
+    return Object.fromEntries(
+      order.map(key => [key, data[key]])
+    );
+  }
+
+  /**
+   * Inserts a new record into the specified table.
+   * @param {RequestParams} request - The parameters for the insert operation.
+   * @returns {DatabaseResponse} - The result of the insert operation.
+   * @throws {Error} - Throws an error if data is null.
+   */
+  public insert(request: RequestParams): DatabaseResponse {
     try {
+      if (!request.data) throw new Error(`Data can't be null`);
+      const dataOrder = this.getTypeDataOrder(request.table);
+      dataOrder.splice(dataOrder.indexOf("id"), 1);
+      const reorderedData = this.reorderData(request.data, dataOrder);
+
+      const columns = Object.keys(reorderedData).join(", ");
+      const placeholders = Object.keys(reorderedData).map(() => '?').join(", ");
+      const values = Object.values(reorderedData);
+
       const stmt = this.database?.prepare(
-        "INSERT INTO user (name, login, email, password) VALUES (?, ?, ?, ?)"
+        `INSERT INTO ${request.table.toLowerCase()} (${columns}) VALUES (${placeholders})`
       );
-      stmt?.run(user.name, user.login, user.email, user.password);
-      return { code: 201, message: "User Created" };
+      const info = stmt?.run(...values);
+
+      return { code: 201, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
     }
   }
 
   /**
-   * Deletes a user from the database based on the user ID.
-   * @param {number} userId - The ID of the user to be deleted.
-   * @returns {DatabaseResponse} - The database response indicating the status of the delete operation.
+   * Deletes a record from the specified table based on a column value.
+   * @param {RequestParams} request - The parameters for the delete operation.
+   * @returns {DatabaseResponse} - The result of the delete operation.
+   * @throws {Error} - Throws an error if the column or value is missing or invalid.
    */
-  deleteUser(userId: number): DatabaseResponse {
+  public delete(request: RequestParams): DatabaseResponse {
     try {
-      const stmt = this.database?.prepare("DELETE FROM user WHERE id = ?");
-      stmt?.run(userId);
-      return { code: 202, message: "User Deleted" };
+      if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
+
+      const dataOrder = this.getTypeDataOrder(request.table);
+      const column = request.column;
+
+      if (!dataOrder.includes(column)) throw new Error(`Invalid column ${column} in ${request.table}`);
+
+      const stmt = this.database?.prepare(`DELETE FROM ${request.table.toLowerCase()} WHERE ${column} = ?`);
+      const info = stmt?.run(request.value);
+
+      return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
     }
   }
 
   /**
-   * Updates a user's information in the database based on the provided user object.
-   * @param {User} user - The updated user object containing new information.
-   * @returns {DatabaseResponse} - The database response indicating the status of the update operation.
+   * Updates a record in the specified table based on a column value.
+   * @param {RequestParams} request - The parameters for the update operation.
+   * @returns {DatabaseResponse} - The result of the update operation.
+   * @throws {Error} - Throws an error if the column, value, or data is missing or invalid.
    */
-  updateUser(user: User): DatabaseResponse {
+  public update(request: RequestParams): DatabaseResponse {
     try {
+      if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
+      if (!request.data) throw new Error(`Data can't be null`);
+
+      const dataOrder = this.getTypeDataOrder(request.table);
+      dataOrder.splice(dataOrder.indexOf(request.column), 1);
+
+      const reorderedData = this.reorderData(request.data, dataOrder);
+
+      const columns = Object.keys(reorderedData).map(column => `${column} = ?`).join(", ");
+      const values = Object.values(reorderedData);
+
       const stmt = this.database?.prepare(
-        "UPDATE user SET name = ?, login = ?, email = ?, password = ? WHERE id = ?"
+        `UPDATE ${request.table.toLowerCase()} SET ${columns} WHERE ${request.column} = ?`
       );
-      stmt?.run(user.name, user.login, user.email, user.password, user.id);
-      return { code: 202, message: "User Updated" };
+
+      const info = stmt?.run(...values, request.value);
+      return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
     }
   }
 
   /**
-   * Retrieves user information from the database based on the user ID.
-   * @param {number} userId - The ID of the user to retrieve.
-   * @returns {DatabaseResponse} - The database response containing the user information if found.
+   * Selects a record from the specified table based on a column value.
+   * @param {RequestParams} request - The parameters for the select operation.
+   * @returns {DatabaseResponse} - The result of the select operation.
    */
-  getUser(userId: number): DatabaseResponse {
+  public select(request: RequestParams): DatabaseResponse {
     try {
-      const stmt = this.database?.prepare("SELECT * FROM user WHERE id = ?");
-      const userInformation = stmt?.get(userId);
-      return { code: 200, message: "User Retrieved", content: userInformation };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Creates a new team with the provided information.
-   * @param {Team} team - Information about the team to be created.
-   * @returns {DatabaseResponse} - The database response after attempting to add the team.
-   */
-  addTeam(team: Team): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare(
-        "INSERT INTO team (name, owner) VALUES (?, ?)"
-      );
-      stmt?.run(team.name, team.owner);
-      return { code: 200, message: "Team Created" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Deletes a team by its ID.
-   * @param {number} teamId - The ID of the team to be deleted.
-   * @returns {DatabaseResponse} - The database response after attempting to delete the team.
-   */
-  deleteTeam(teamId: number): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("DELETE FROM team WHERE id = ?");
-      stmt?.run(teamId);
-      return { code: 200, message: "Team Deleted" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Updates the information of an existing team.
-   * @param {Team} team - The updated team information.
-   * @returns {DatabaseResponse} - The database response after attempting to update the team.
-   */
-  updateTeam(team: Team): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare(
-        "UPDATE team SET name = ?, owner = ? WHERE id = ?"
-      );
-      stmt?.run(team.name, team.owner, team.id!);
-      return { code: 200, message: "Team Updated" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Retrieves a team's information by its ID.
-   * @param {number} teamId - The ID of the team to be retrieved.
-   * @returns {DatabaseResponse} - The database response after attempting to retrieve the team.
-   */
-  getTeam(teamId: number): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("SELECT * FROM team WHERE id = ?");
-      const teamInformation = stmt?.get(teamId);
-      return { code: 200, message: "Team Retrieved", content: teamInformation };
+      if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
+      const stmt = this.database?.prepare(`SELECT * FROM ${request.table.toLowerCase()} WHERE ${request.column} = ?`);
+      const info = stmt?.get(request.value);
+      return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
     }
@@ -157,11 +260,11 @@ export default class DatabaseManager {
 
   /**
    * Adds a member to a team.
-   * @param {number} teamId - The ID of the team.
+   * @param {number} teamId - The ID of the team to which the member will be added.
    * @param {number} userId - The ID of the user to be added to the team.
-   * @returns {DatabaseResponse} - The database response after attempting to add the member.
+   * @returns {DatabaseResponse} - Throws an error if the column or value is missing or invalid.
    */
-  addTeamMember(teamId: number, userId: number): DatabaseResponse {
+  public addTeamMember(teamId: number, userId: number): DatabaseResponse {
     try {
       const stmt = this.database?.prepare(
         "INSERT INTO team_members (team_id, user_id) VALUES (?, ?)"
@@ -175,11 +278,11 @@ export default class DatabaseManager {
 
   /**
    * Removes a member from a team.
-   * @param {number} teamId - The ID of the team.
+   * @param {number} teamId - The ID of the team from which the member will be removed.
    * @param {number} userId - The ID of the user to be removed from the team.
-   * @returns {DatabaseResponse} - The database response after attempting to remove the member.
+   * @returns {DatabaseResponse} - The result of the remove operation.
    */
-  removeTeamMember(teamId: number, userId: number): DatabaseResponse {
+  public removeTeamMember(teamId: number, userId: number): DatabaseResponse {
     try {
       const stmt = this.database?.prepare(
         "DELETE FROM team_members WHERE team_id = ? AND user_id = ?"
@@ -192,203 +295,19 @@ export default class DatabaseManager {
   }
 
   /**
-   * Creates a new category to be used 
-   * @param category - Category to be created
-   * @returns - Request status
+   * Handles errors by logging them (if debug mode is enabled) and returning a standardized error response.
+   * @param {any} err - The error to handle.
+   * @returns {DatabaseResponse} - The standardized error response.
    */
-  addCategory(category: Category): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("INSERT INTO category (name) VALUES (?)");
-      stmt?.run(category.name);
-      return { code: 200, message: "Category Created" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Deletes a category from the database
-   * @param categoryId - ID of the category to be deleted
-   * @returns - Request status
-   */
-  deleteCategory(categoryId: number): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("DELETE FROM category WHERE id = ?");
-      stmt?.run(categoryId);
-      return { code: 200, message: "Category Deleted" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Updates the specified category name
-   * @param category - New category to override the current one
-   * @returns - Request status
-   */
-  updateCategory(category: Category): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("UPDATE category SET name = ? WHERE id = ?");
-      stmt?.run(category.name, category.id);
-      return { code: 200, message: "Category Updated" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-  /**
-   * Retrieves a category from the database
-   * @param categoryId - ID of the category to be retrieved
-   * @returns - Request status and content
-   */
-  getCategory(categoryId: number): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("SELECT * FROM category WHERE id = ?");
-      const categoryInformation = stmt?.get(categoryId);
-      return { code: 200, message: "Category Retrieved", content: categoryInformation };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-
-
-  /**
-   * Creates a new priority to be used 
-   * @param priority - Priority to be created
-   * @returns - Request status
-   */
-  addPriority(priority: Priority): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("INSERT INTO priority (name) VALUES (?)");
-      stmt?.run(priority.name);
-      return { code: 200, message: "Priority Created" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-  
-  /**
-   * Deletes a priority from the database
-   * @param priorityId - ID of the priority to be deleted
-   * @returns - Request status
-   */
-  deletePriority(priorityId: number): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("DELETE FROM priority WHERE id = ?");
-      stmt?.run(priorityId);
-      return { code: 200, message: "Priority Deleted" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-  
-  /**
-   * Updates the specified priority name
-   * @param priority - New priority to override the current one
-   * @returns - Request status
-   */
-  updatePriority(priority: Priority): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("UPDATE priority SET name = ? WHERE id = ?");
-      stmt?.run(priority.name, priority.id);
-      return { code: 200, message: "Priority Updated" };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }
-  
-  /**
-   * Retrieves a priority from the database
-   * @param priorityId - ID of the priority to be retrieved
-   * @returns - Request status and content
-   */
-  getPriority(priorityId: number): DatabaseResponse {
-    try {
-      const stmt = this.database?.prepare("SELECT * FROM priority WHERE id = ?");
-      const priorityInformation = stmt?.get(priorityId);
-      return { code: 200, message: "Priority Retrieved", content: priorityInformation };
-    } catch (err) {
-      return this.errorDefaultHandler(err);
-    }
-  }  
-
-  /**
-   * Creates a new status to be used 
-   * @param status - Status to be created
-   * @returns - Request status
-   */
-addStatus(status: Status): DatabaseResponse {
-  try {
-    const stmt = this.database?.prepare("INSERT INTO status (name) VALUES (?)");
-    stmt?.run(status.name);
-    return { code: 200, message: "Status Created" };
-  } catch (err) {
-    return this.errorDefaultHandler(err);
-  }
-}
-
-/**
-   * Deletes a status from the database
-   * @param statusId - ID of the status to be deleted
-   * @returns - Request status
-   */
-deleteStatus(statusId: number): DatabaseResponse {
-  try {
-    const stmt = this.database?.prepare("DELETE FROM status WHERE id = ?");
-    stmt?.run(statusId);
-    return { code: 200, message: "Status Deleted" };
-  } catch (err) {
-    return this.errorDefaultHandler(err);
-  }
-}
-
-/**
-   * Updates the specified status name
-   * @param status - New status to override the current one
-   * @returns - Request status
-   */
-updateStatus(status: Status): DatabaseResponse {
-  try {
-    const stmt = this.database?.prepare("UPDATE status SET name = ? WHERE id = ?");
-    stmt?.run(status.name, status.id);
-    return { code: 200, message: "Status Updated" };
-  } catch (err) {
-    return this.errorDefaultHandler(err);
-  }
-}
-
-/**
-   * Retrieves a status from the database
-   * @param statusId - ID of the status to be retrieved
-   * @returns - Request status and content
-   */
-getStatus(statusId: number): DatabaseResponse {
-  try {
-    const stmt = this.database?.prepare("SELECT * FROM status WHERE id = ?");
-    const statusInformation = stmt?.get(statusId);
-    return { code: 200, message: "Status Retrieved", content: statusInformation };
-  } catch (err) {
-    return this.errorDefaultHandler(err);
-  }
-}
-
-  /**
-   * Default error handler for the database manager.
-   * @param {any} err - The caught error.
-   * @returns {DatabaseResponse} - A DatabaseResponse object with a code of 400.
-   */
-  errorDefaultHandler(err: any): DatabaseResponse {
-    // Log the error to the console if debug mode is enabled
+  private errorDefaultHandler(err: any): DatabaseResponse {
     if (this.debugMode) {
       console.error("Database Error:", err);
     }
 
-    // Return a standardized error response
     return {
       code: 400,
       message: "Bad Request",
       content: err,
     };
   }
-
 }
