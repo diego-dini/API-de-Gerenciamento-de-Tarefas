@@ -91,7 +91,20 @@ export type Status = {
   name: string;
 };
 
-type DefaultData = User | Team | Category | Priority | Status;
+export type Task = {
+  id?: number,
+  creationDate: Date,
+  deadline: Date,
+  name: string,
+  description: string,
+  category: number,
+  priority: number,
+  status: number,
+  team: number,
+  responsible: number
+}
+
+type DefaultData = User | Team | Category | Priority | Status | Task;
 
 type RequestParams = {
   table: DatabaseTables;
@@ -105,7 +118,7 @@ type RequestParams = {
  */
 export default class DatabaseManager {
   private database: sqlite3.Database | null = null;
-  private debugMode: boolean = true;
+  private debugMode: boolean = false;
 
   /**
    * Initializes the database, loading or creating a database file at the specified path.
@@ -143,6 +156,8 @@ export default class DatabaseManager {
         return ["id", "name"];
       case DatabaseTables.TEAM:
         return ["id", "name", "owner"];
+      case DatabaseTables.TASK:
+        return ["id", "creationDate", "deadline", "name", "description", "category", "priority", "status", "team", "responsible"];
       default:
         throw new Error(`No Statement Set To ${table}`);
     }
@@ -172,7 +187,7 @@ export default class DatabaseManager {
       const dataOrder = this.getTypeDataOrder(request.table);
       dataOrder.splice(dataOrder.indexOf("id"), 1);
       const reorderedData = this.reorderData(request.data, dataOrder);
-
+      
       const columns = Object.keys(reorderedData).join(", ");
       const placeholders = Object.keys(reorderedData).map(() => '?').join(", ");
       const values = Object.values(reorderedData);
@@ -181,7 +196,11 @@ export default class DatabaseManager {
         `INSERT INTO ${request.table.toLowerCase()} (${columns}) VALUES (${placeholders})`
       );
       const info = stmt?.run(...values);
-
+      if(this.debugMode){
+        console.log(`INSERT INTO ${request.table.toLowerCase()} (${columns}) VALUES (${placeholders})`)
+        console.log(values)
+        console.log({ code: 201, message: "Operation Succeeded", content: info })
+      }
       return { code: 201, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
