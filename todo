@@ -6,7 +6,7 @@
 [x] Create Categorie Type
 [x] Create Priority Type
 [x] Create Status Type
-[ ]Create Task Type
+[x]Create Task Type
 
 # Database Manager
 [x] Database Manager Constructor
@@ -46,15 +46,15 @@
     [x] Update
     [x] Get
 
-[ ] Create Task Manager Functions
-    [ ] Add
-    [ ] Delete
-    [ ] Update
-    [ ] Get
+[x] Create Task Manager Functions
+    [x] Add
+    [x] Delete
+    [x] Update
+    [x] Get
 
 # Main APP Functions
 [ ] Default Request Authenticator
-[ ] User Registration
+[x] User Registration
 [ ] User Login and Session Controller
 [ ] Add Team
     [ ] Invite User to Team
