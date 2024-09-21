@@ -1,8 +1,12 @@
 import { Request, Response } from "express";
-import DatabaseManager, { DatabaseResponse, DatabaseTables } from "./databaseManager";
+import DatabaseManager, {
+  DatabaseResponse,
+  DatabaseTables,
+} from "./databaseManager";
 import databaseSingleton from "./databaseSingleton";
 import { hashString } from "./hashUtils";
 import { sessionController } from "./sessionController";
+import validator from "validator";
 
 // Create a singleton instance of the DatabaseManager to ensure a single point of database access
 const dbManager: DatabaseManager = databaseSingleton();
@@ -10,39 +14,45 @@ const dbManager: DatabaseManager = databaseSingleton();
 const userController = {
   // Handle user registration
   register(req: Request, res: Response) {
-    // Create a new user object from the request body, hashing the password
-    const newUser = {
-      name: req.body.name,
-      email: req.body.email,
-      login: req.body.login,
-      password: hashString(req.body.password), // Securely hash the password
-    };
+    // Validate the email format
+    if (!validator.isEmail(req.body.email)) {
+      return res.status(400).json({ message: "Invalid E-Mail Address" });
+    }
 
     // Check if the login already exists in the database
     const existLogin: DatabaseResponse = dbManager.select({
       table: DatabaseTables.USER,
       column: "login",
-      value: newUser.login,
+      value: req.body.login,
     });
 
     // Check if the email already exists in the database
     const existEmail: DatabaseResponse = dbManager.select({
       table: DatabaseTables.USER,
       column: "email",
-      value: newUser.email,
+      value: req.body.email,
     });
 
     // If either the login or email already exists, return a conflict message
     if (existLogin.content || existEmail.content) {
-      const conflictMessage = existLogin.content && existEmail.content
-        ? "Login and Email are already registered."
-        : existLogin.content
-        ? "Login is already registered."
-        : "Email is already registered.";
+      const conflictMessage =
+        existLogin.content && existEmail.content
+          ? "Login and Email are already registered."
+          : existLogin.content
+          ? "Login is already registered."
+          : "Email is already registered.";
 
       // Respond with a 409 status code for conflict
       return res.status(409).json({ message: conflictMessage });
     }
+
+    // Create a new user object, hashing the password and normalizing the email
+    const newUser = {
+      name: req.body.name,
+      email: validator.normalizeEmail(req.body.email),
+      login: req.body.login,
+      password: hashString(req.body.password), // Securely hash the password
+    };
 
     // Insert the new user into the database
     const dbResponse: DatabaseResponse = dbManager.insert({
@@ -65,6 +75,11 @@ const userController = {
     const sessionUserLogin = req.session.user?.login;
     if (!sessionUserLogin || sessionUserLogin !== req.body.login) {
       return res.status(404).json({ message: "Invalid credentials" });
+    }
+
+    // Validate the email format
+    if (!validator.isEmail(req.body.email)) {
+      return res.status(400).json({ message: "Invalid E-Mail Address" });
     }
 
     // Check if the provided email already exists in the database
@@ -95,9 +110,13 @@ const userController = {
     const newUserInformation = {
       id: oldUserInformation.content.id, // Include user ID for the update
       name: req.body.name || oldUserInformation.content.name,
-      email: req.body.email || oldUserInformation.content.email,
+      email:
+        validator.normalizeEmail(req.body.email) ||
+        oldUserInformation.content.email,
       login: req.body.login,
-      password: req.body.password ? hashString(req.body.password) : oldUserInformation.content.password,
+      password: req.body.password
+        ? hashString(req.body.password)
+        : oldUserInformation.content.password,
     };
 
     // Update the user information in the database
@@ -109,7 +128,9 @@ const userController = {
     });
 
     // Respond with the status code and a success message
-    res.status(updateResponse.code).json({ message: "User information updated successfully" });
+    res
+      .status(updateResponse.code)
+      .json({ message: "User information updated successfully" });
   },
 };
 
