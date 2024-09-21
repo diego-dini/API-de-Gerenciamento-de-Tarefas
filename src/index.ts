@@ -1,28 +1,27 @@
-import express from "express";
-import db from "./database";
-import DatabaseManager, { DatabaseResponse, DatabaseTables } from "./databaseManager";
-import { createHash } from 'crypto';
-
-const dbManager: DatabaseManager = db();
-
+import express, { Request, Response } from "express";
+import session from 'express-session';
+import { sessionController } from "./sessionController";
+import userController from "./userController";
 
 const app = express();
 const port = 30000;
 
 app.use(express.json());
 
-app.post("/user", (req, res) => {
-  const hash = createHash('sha256');
-  hash.update(req.body.password)
-  const newUser = {name:req.body.name,
-    email:req.body.email,
-    login:req.body.login,
-    password:hash.digest('hex')}
-  const dbResponse:DatabaseResponse = dbManager.insert({table:DatabaseTables.USER,data:newUser})
-  res.status(dbResponse.code)
-  res.send(dbResponse.message)
-})
+app.use(session({
+  secret: 'yourSecretKey', 
+  resave: false,            
+  saveUninitialized: true,  
+  cookie: { maxAge: 60000 } 
+}));
+
+app.post("/register/user",userController.register)
+app.post("/update/user",userController.update)
+
+app.get("/login",sessionController.login)
+app.get("/logout",sessionController.logout)
 
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`);
 });
+

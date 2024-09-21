@@ -1,0 +1,117 @@
+import { Request, Response } from "express";
+import DatabaseManager, { DatabaseResponse, DatabaseTables } from "./databaseManager";
+import databaseSingleton from "./databaseSingleton";
+import { hashString } from "./hashUtils";
+import { sessionController } from "./sessionController";
+
+// Create a singleton instance of the DatabaseManager to ensure a single point of database access
+const dbManager: DatabaseManager = databaseSingleton();
+
+const userController = {
+  // Handle user registration
+  register(req: Request, res: Response) {
+    // Create a new user object from the request body, hashing the password
+    const newUser = {
+      name: req.body.name,
+      email: req.body.email,
+      login: req.body.login,
+      password: hashString(req.body.password), // Securely hash the password
+    };
+
+    // Check if the login already exists in the database
+    const existLogin: DatabaseResponse = dbManager.select({
+      table: DatabaseTables.USER,
+      column: "login",
+      value: newUser.login,
+    });
+
+    // Check if the email already exists in the database
+    const existEmail: DatabaseResponse = dbManager.select({
+      table: DatabaseTables.USER,
+      column: "email",
+      value: newUser.email,
+    });
+
+    // If either the login or email already exists, return a conflict message
+    if (existLogin.content || existEmail.content) {
+      const conflictMessage = existLogin.content && existEmail.content
+        ? "Login and Email are already registered."
+        : existLogin.content
+        ? "Login is already registered."
+        : "Email is already registered.";
+
+      // Respond with a 409 status code for conflict
+      return res.status(409).json({ message: conflictMessage });
+    }
+
+    // Insert the new user into the database
+    const dbResponse: DatabaseResponse = dbManager.insert({
+      table: DatabaseTables.USER,
+      data: newUser,
+    });
+
+    // Respond with the database response message and status code
+    res.status(dbResponse.code).json({ message: dbResponse.message });
+  },
+
+  // Handle user updates
+  update(req: Request, res: Response) {
+    // Verify if the session is valid
+    if (!sessionController.validSession(req)) {
+      return res.status(400).json({ message: "Invalid Session" });
+    }
+
+    // Check if the login in the session matches the login provided in the request
+    const sessionUserLogin = req.session.user?.login;
+    if (!sessionUserLogin || sessionUserLogin !== req.body.login) {
+      return res.status(404).json({ message: "Invalid credentials" });
+    }
+
+    // Check if the provided email already exists in the database
+    const existEmail: DatabaseResponse = dbManager.select({
+      table: DatabaseTables.USER,
+      column: "email",
+      value: req.body.email,
+    });
+
+    // If the email exists and is not associated with the current user, return a conflict message
+    if (existEmail.content && existEmail.content.login !== req.body.login) {
+      return res.status(409).json({ message: "Email is already registered." });
+    }
+
+    // Get the current user information from the database
+    const oldUserInformation: DatabaseResponse = dbManager.select({
+      table: DatabaseTables.USER,
+      column: "login",
+      value: req.body.login,
+    });
+
+    // If the user is not found, respond with a 404 status
+    if (!oldUserInformation.content) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Create a new user information object, preserving old data if new data is not provided
+    const newUserInformation = {
+      id: oldUserInformation.content.id, // Include user ID for the update
+      name: req.body.name || oldUserInformation.content.name,
+      email: req.body.email || oldUserInformation.content.email,
+      login: req.body.login,
+      password: req.body.password ? hashString(req.body.password) : oldUserInformation.content.password,
+    };
+
+    // Update the user information in the database
+    const updateResponse: DatabaseResponse = dbManager.update({
+      table: DatabaseTables.USER,
+      column: "login", // Specify the column to match for the update
+      data: newUserInformation,
+      value: req.body.login,
+    });
+
+    // Respond with the status code and a success message
+    res.status(updateResponse.code).json({ message: "User information updated successfully" });
+  },
+};
+
+// Export the user controller for use in routes
+export default userController;

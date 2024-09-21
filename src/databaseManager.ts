@@ -106,6 +106,15 @@ export type Task = {
 
 type DefaultData = User | Team | Category | Priority | Status | Task;
 
+/**
+ * Represents the parameters for a database request.
+ *
+ * @typedef {Object} RequestParams
+ * @property {DatabaseTables} table - The name of the database table where the operation will take place.
+ * @property {string} [column] - (Optional) The column name in the specified table to search by.
+ * @property {string} [value] - (Optional) The value to search for in the specified column.
+ * @property {DefaultData} [data] - (Optional) The data object containing fields to update or insert into the database row.
+ */
 type RequestParams = {
   table: DatabaseTables;
   column?: string;
@@ -196,11 +205,6 @@ export default class DatabaseManager {
         `INSERT INTO ${request.table.toLowerCase()} (${columns}) VALUES (${placeholders})`
       );
       const info = stmt?.run(...values);
-      if(this.debugMode){
-        console.log(`INSERT INTO ${request.table.toLowerCase()} (${columns}) VALUES (${placeholders})`)
-        console.log(values)
-        console.log({ code: 201, message: "Operation Succeeded", content: info })
-      }
       return { code: 201, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
@@ -255,6 +259,7 @@ export default class DatabaseManager {
       );
 
       const info = stmt?.run(...values, request.value);
+      
       return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);

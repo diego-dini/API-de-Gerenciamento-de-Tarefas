@@ -55,7 +55,7 @@
 # Main APP Functions
 [ ] Default Request Authenticator
 [x] User Registration
-[ ] User Login and Session Controller
+[x] User Login and Session Controller
 [ ] Add Team
     [ ] Invite User to Team
     [ ] Remove User from Team
