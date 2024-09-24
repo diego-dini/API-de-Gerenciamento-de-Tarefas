@@ -13,18 +13,8 @@ declare module 'express-session' {
 
 const dbManager: DatabaseManager = databaseSingleton();
 
-// Middleware to check if the user is authenticated
-function isAuthenticated(req: Request, res: Response, next: Function): void {
-    if (req.session.user) {
-        next();
-    } else {
-        res.status(401).json({ message: 'Unauthorized' });
-    }
-}
-
 const sessionController = {
     login(req: Request, res: Response){
-        const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
         const {login, password} = req.body;
         const databaseResponse = dbManager.select({table:DatabaseTables.USER, column:"login", value:login})
         

@@ -16,7 +16,7 @@
     [x] Delete 
     [x] Update 
     [x] Get 
-    [ ] Update to Encrypt Email and Password
+    [x] Update to Encrypt Password
 
 [x] Create Team Manager Functions
     [x] Add
@@ -53,10 +53,10 @@
     [x] Get
 
 # Main APP Functions
-[ ] Default Request Authenticator
+[x] Default Request Authenticator
 [x] User Registration
 [x] User Login and Session Controller
-[ ] Add Team
+[ ] Add Team ()
     [ ] Invite User to Team
     [ ] Remove User from Team
 [ ] Add Categories
