@@ -7,7 +7,7 @@ import 'express-session';
 
 declare module 'express-session' {
     interface SessionData {
-        user: { login: string };
+        user: { id:number, login: string };
     }
 }
 
@@ -21,7 +21,7 @@ const sessionController = {
         if(databaseResponse.content){
             const hashLoginPassword = hashString(password)
             if(databaseResponse.content.password === hashLoginPassword) {
-            req.session.user = { login };
+            req.session.user = { login, id:databaseResponse.content.id };
             res.json({ message: 'Login successful', user: req.session.user });
         }} else {
             res.status(401).json({ message: 'Invalid credentials' });

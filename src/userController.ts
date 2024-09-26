@@ -55,13 +55,16 @@ const userController = {
     };
 
     // Insert the new user into the database
-    const dbResponse: DatabaseResponse = dbManager.insert({
+    const newUserResponse: DatabaseResponse = dbManager.insert({
       table: DatabaseTables.USER,
       data: newUser,
     });
-
+    // Insert a new team into the database
+    const newTeamResponse = dbManager.insert({table:DatabaseTables.TEAM,data:{name:`${newUser.name} Team`, owner:newUserResponse.content.lastInsertRowid}})
+    // Add the new user as member and owner of the new team
+    dbManager.addTeamMember(newTeamResponse.content.lastInsertRowid,newUserResponse.content.lastInsertRowid)
     // Respond with the database response message and status code
-    res.status(dbResponse.code).json({ message: dbResponse.message });
+    res.status(newUserResponse.code).json({ message: newUserResponse.message });
   },
 
   // Handle user updates

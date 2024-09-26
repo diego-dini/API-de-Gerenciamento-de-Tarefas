@@ -228,7 +228,6 @@ export default class DatabaseManager {
 
       const stmt = this.database?.prepare(`DELETE FROM ${request.table.toLowerCase()} WHERE ${column} = ?`);
       const info = stmt?.run(request.value);
-
       return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
