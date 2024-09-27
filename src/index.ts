@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import session from 'express-session';
 import { sessionController } from "./sessionController";
 import userController from "./userController";
+import teamController from "./teamController";
 
 const app = express();
 const port = 30000;
@@ -17,6 +18,10 @@ app.use(session({
 
 app.post("/register/user",userController.register)
 app.post("/update/user",userController.update)
+
+app.post("/create/team",teamController.create)
+app.post("/update/team",teamController.update)
+app.post("/delete/team",teamController.delete)
 
 app.get("/login",sessionController.login)
 app.get("/logout",sessionController.logout)

@@ -316,6 +316,18 @@ export default class DatabaseManager {
       return this.errorDefaultHandler(err);
     }
   }
+  
+  public removeAllTeamMembers(teamId: number): DatabaseResponse{
+    try {
+      const stmt = this.database?.prepare(
+        "DELETE FROM team_members WHERE team_id = ?"
+      );
+      stmt?.run(teamId);
+      return { code: 200, message: "Team Removed" };
+    } catch (err) {
+      return this.errorDefaultHandler(err);
+    }
+  }
 
   /**
    * Handles errors by logging them (if debug mode is enabled) and returning a standardized error response.
