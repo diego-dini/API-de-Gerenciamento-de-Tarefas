@@ -1,70 +1,124 @@
 import { Request, Response } from "express";
-import { sessionController } from "./sessionController";
+import sessionController from "./sessionController";
 import DatabaseManager, {
     DatabaseResponse,
     DatabaseTables,
-  } from "./databaseManager";
+} from "./databaseManager";
 import databaseSingleton from "./databaseSingleton";
 
 // Create a singleton instance of the DatabaseManager to ensure a single point of database access
 const dbManager: DatabaseManager = databaseSingleton();
 
 const teamController = {
+
+    /**
+     * Creates a new team if the session is valid.
+     * The owner of the team is either specified in the request body or defaults to the current session user.
+     * The owner is also added as a member of the new team.
+     * @param req - Express request object, containing team data in the body.
+     * @param res - Express response object.
+     */
     create(req: Request, res: Response) {
-        if(sessionController.validSession(req)){
+        // Validate session
+        if (sessionController.validSession(req)) {
             const newTeam = {
-                name: req.body.name,
-                owner: req.body.owner || req.session.user?.id!
+                name: req.body.name, // Team name from request body
+                owner: req.body.owner || req.session.user?.id! // Owner defaults to the session user
             }
-            const newTeamResponse = dbManager.insert({table:DatabaseTables.TEAM,data:newTeam})
-            dbManager.addTeamMember(newTeamResponse.content.lastInsertRowid,newTeam.owner)
-            res.status(newTeamResponse.code).json({ message: newTeamResponse.message, content:newTeamResponse.content});
+
+            // Insert new team into the database
+            const newTeamResponse = dbManager.insert({ table: DatabaseTables.TEAM, data: newTeam });
+            
+            // Add the owner as a member of the newly created team
+            dbManager.addTeamMember(newTeamResponse.content.lastInsertRowid, newTeam.owner);
+
+            // Return the response with the status code and message
+            res.status(newTeamResponse.code).json({ message: newTeamResponse.message, content: newTeamResponse.content });
         } else {
+            // If the user is not authenticated, return a 401 Unauthorized status
             return res.status(401).json({ message: "User not authenticated" });
         }
     },
 
+    /**
+     * Deletes a team if the session is valid and the requesting user is the team owner.
+     * First removes all members of the team, then deletes the team itself.
+     * @param req - Express request object, containing team id in the body.
+     * @param res - Express response object.
+     */
     delete(req: Request, res: Response) {
-        if(sessionController.validSession(req)){
-            const teamId = req.body.id
-            const team = dbManager.select({table:DatabaseTables.TEAM, column:'id', value:teamId})
-            if(!team.content) {
+        // Validate session
+        if (sessionController.validSession(req)) {
+            const teamId = req.body.id; // Team ID from request body
+
+            // Fetch the team from the database
+            const team = dbManager.select({ table: DatabaseTables.TEAM, column: 'id', value: teamId });
+
+            // If team does not exist, return a 400 Bad Request status
+            if (!team.content) {
                 return res.status(400).json({ message: "Invalid team id" });
             }
-            if (team.content.owner != req.session.user!.id){
-                return res.status(401).json({ message: "User not autorized" });
+
+            // Check if the requesting user is the team owner
+            if (team.content.owner != req.session.user!.id) {
+                return res.status(401).json({ message: "User not authorized" }); // Fixed typo from "autorized" to "authorized"
             }
-            dbManager.removeAllTeamMembers(teamId)
-            const databaseResponse = dbManager.delete({table:DatabaseTables.TEAM, column:'id', value:teamId})
+
+            // Remove all team members before deleting the team
+            dbManager.removeAllTeamMembers(teamId);
+
+            // Delete the team from the database
+            const databaseResponse = dbManager.delete({ table: DatabaseTables.TEAM, column: 'id', value: teamId });
+
+            // Return the response with the status code and message
             res.status(databaseResponse.code).json({ message: databaseResponse.message });
-        }else {
+        } else {
+            // If the user is not authenticated, return a 401 Unauthorized status
             return res.status(401).json({ message: "User not authenticated" });
         }
     },
 
+    /**
+     * Updates a team's details if the session is valid and the requesting user is the team owner.
+     * @param req - Express request object, containing team data and id in the body.
+     * @param res - Express response object.
+     */
     update(req: Request, res: Response) {
-        if(sessionController.validSession(req)){
+        // Validate session
+        if (sessionController.validSession(req)) {
 
-            const teamId = req.body.id
-            const team = dbManager.select({table:DatabaseTables.TEAM, column:'id', value:teamId})
-            if(!team.content) {
+            const teamId = req.body.id; // Team ID from request body
+
+            // Fetch the team from the database
+            const team = dbManager.select({ table: DatabaseTables.TEAM, column: 'id', value: teamId });
+
+            // If team does not exist, return a 400 Bad Request status
+            if (!team.content) {
                 return res.status(400).json({ message: "Invalid team id" });
             }
-            if (team.content.owner != req.session.user!.id){
-                return res.status(401).json({ message: "User not autorized" });
+
+            // Check if the requesting user is the team owner
+            if (team.content.owner != req.session.user!.id) {
+                return res.status(401).json({ message: "User not authorized" }); // Fixed typo from "autorized" to "authorized"
             }
 
-            const newTeam = {
-                id: req.body.id,
-                name: req.body.name,
-                owner: req.session.user?.id!
+            // Prepare updated team details
+            const updatedTeam = {
+                id: req.body.id, // Team ID
+                name: req.body.name, // New team name from request body
+                owner: req.session.user?.id! // Owner remains the session user
             }
-            const response = dbManager.update({table:DatabaseTables.TEAM,data:newTeam, column:"id", value:req.body.id})           
+
+            // Update the team in the database
+            const response = dbManager.update({ table: DatabaseTables.TEAM, data: updatedTeam, column: "id", value: req.body.id });
+
+            // Return the response with the status code and message
             res.status(response.code).json({ message: response.message });
         } else {
+            // If the user is not authenticated, return a 401 Unauthorized status
             return res.status(401).json({ message: "User not authenticated" });
         }
     }
 }
 
-export default teamController
+export default teamController;

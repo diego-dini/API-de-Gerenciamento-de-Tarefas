@@ -5,7 +5,7 @@ import DatabaseManager, {
 } from "./databaseManager";
 import databaseSingleton from "./databaseSingleton";
 import { hashString } from "./hashUtils";
-import { sessionController } from "./sessionController";
+import sessionController from "./sessionController";
 import validator from "validator";
 
 // Create a singleton instance of the DatabaseManager to ensure a single point of database access

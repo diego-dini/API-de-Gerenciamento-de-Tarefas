@@ -1,6 +1,6 @@
 import express, { Request, Response } from "express";
 import session from 'express-session';
-import { sessionController } from "./sessionController";
+import sessionController from "./sessionController";
 import userController from "./userController";
 import teamController from "./teamController";
 

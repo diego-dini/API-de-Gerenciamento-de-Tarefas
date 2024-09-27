@@ -25,7 +25,7 @@ export enum DatabaseTables {
   CATEGORY = "category",
   PRIORITY = "priority",
   STATUS = "status",
-  TASK = "task"
+  TASK = "task",
 }
 
 /**
@@ -91,18 +91,32 @@ export type Status = {
   name: string;
 };
 
+/**
+ * Represents a task in the database.
+ * @typedef {Object} Task
+ * @property {number} [id] - The unique identifier for the task.
+ * @property {Date} creationDate - The creation date of the task.
+ * @property {Date} deadline - The deadline of the task.
+ * @property {string} name - The name of the task.
+ * @property {string} description - The description of the task.
+ * @property {number} category - The ID of the task category.
+ * @property {number} priority - The ID of the task priority.
+ * @property {number} status - The ID of the task status.
+ * @property {number} team - The ID of the team responsible for the task.
+ * @property {number} responsible - The ID of the user responsible for the task.
+ */
 export type Task = {
-  id?: number,
-  creationDate: Date,
-  deadline: Date,
-  name: string,
-  description: string,
-  category: number,
-  priority: number,
-  status: number,
-  team: number,
-  responsible: number
-}
+  id?: number;
+  creationDate: Date;
+  deadline: Date;
+  name: string;
+  description: string;
+  category: number;
+  priority: number;
+  status: number;
+  team: number;
+  responsible: number;
+};
 
 type DefaultData = User | Team | Category | Priority | Status | Task;
 
@@ -166,9 +180,20 @@ export default class DatabaseManager {
       case DatabaseTables.TEAM:
         return ["id", "name", "owner"];
       case DatabaseTables.TASK:
-        return ["id", "creationDate", "deadline", "name", "description", "category", "priority", "status", "team", "responsible"];
+        return [
+          "id",
+          "creationDate",
+          "deadline",
+          "name",
+          "description",
+          "category",
+          "priority",
+          "status",
+          "team",
+          "responsible",
+        ];
       default:
-        throw new Error(`No Statement Set To ${table}`);
+        throw new Error(`No Statement Set For ${table}`);
     }
   }
 
@@ -179,9 +204,7 @@ export default class DatabaseManager {
    * @returns {Record<string, any>} - The reordered data object.
    */
   private reorderData(data: Record<string, any>, order: string[]): Record<string, any> {
-    return Object.fromEntries(
-      order.map(key => [key, data[key]])
-    );
+    return Object.fromEntries(order.map((key) => [key, data[key]]));
   }
 
   /**
@@ -194,11 +217,13 @@ export default class DatabaseManager {
     try {
       if (!request.data) throw new Error(`Data can't be null`);
       const dataOrder = this.getTypeDataOrder(request.table);
-      dataOrder.splice(dataOrder.indexOf("id"), 1);
+      dataOrder.splice(dataOrder.indexOf("id"), 1); // Remove id from the insert
       const reorderedData = this.reorderData(request.data, dataOrder);
-      
+
       const columns = Object.keys(reorderedData).join(", ");
-      const placeholders = Object.keys(reorderedData).map(() => '?').join(", ");
+      const placeholders = Object.keys(reorderedData)
+        .map(() => "?")
+        .join(", ");
       const values = Object.values(reorderedData);
 
       const stmt = this.database?.prepare(
@@ -250,7 +275,9 @@ export default class DatabaseManager {
 
       const reorderedData = this.reorderData(request.data, dataOrder);
 
-      const columns = Object.keys(reorderedData).map(column => `${column} = ?`).join(", ");
+      const columns = Object.keys(reorderedData)
+        .map((column) => `${column} = ?`)
+        .join(", ");
       const values = Object.values(reorderedData);
 
       const stmt = this.database?.prepare(
@@ -258,7 +285,7 @@ export default class DatabaseManager {
       );
 
       const info = stmt?.run(...values, request.value);
-      
+
       return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
       return this.errorDefaultHandler(err);
@@ -273,7 +300,9 @@ export default class DatabaseManager {
   public select(request: RequestParams): DatabaseResponse {
     try {
       if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
-      const stmt = this.database?.prepare(`SELECT * FROM ${request.table.toLowerCase()} WHERE ${request.column} = ?`);
+      const stmt = this.database?.prepare(
+        `SELECT * FROM ${request.table.toLowerCase()} WHERE ${request.column} = ?`
+      );
       const info = stmt?.get(request.value);
       return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
@@ -285,7 +314,7 @@ export default class DatabaseManager {
    * Adds a member to a team.
    * @param {number} teamId - The ID of the team to which the member will be added.
    * @param {number} userId - The ID of the user to be added to the team.
-   * @returns {DatabaseResponse} - Throws an error if the column or value is missing or invalid.
+   * @returns {DatabaseResponse} - The result of the operation.
    */
   public addTeamMember(teamId: number, userId: number): DatabaseResponse {
     try {
@@ -316,14 +345,17 @@ export default class DatabaseManager {
       return this.errorDefaultHandler(err);
     }
   }
-  
-  public removeAllTeamMembers(teamId: number): DatabaseResponse{
+
+  /**
+   * Removes all members from a team.
+   * @param {number} teamId - The ID of the team from which all members will be removed.
+   * @returns {DatabaseResponse} - The result of the remove operation.
+   */
+  public removeAllTeamMembers(teamId: number): DatabaseResponse {
     try {
-      const stmt = this.database?.prepare(
-        "DELETE FROM team_members WHERE team_id = ?"
-      );
+      const stmt = this.database?.prepare("DELETE FROM team_members WHERE team_id = ?");
       stmt?.run(teamId);
-      return { code: 200, message: "Team Removed" };
+      return { code: 200, message: "All Team Members Removed" };
     } catch (err) {
       return this.errorDefaultHandler(err);
     }
