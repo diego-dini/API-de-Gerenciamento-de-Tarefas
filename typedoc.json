@@ -1,0 +1,8 @@
+{
+  "entryPoints": ["src/**/*.ts"], // Include all .ts files in the src directory and subdirectories
+  "out": "docs",
+  "plugin": ["typedoc-plugin-markdown"],
+  "includeVersion": true,
+  "excludePrivate": true,
+  "readme": "none"
+}

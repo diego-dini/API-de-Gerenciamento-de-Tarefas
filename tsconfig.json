@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "es6",
     "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["node", "jest"]  // Adicione esta linha para incluir as tipagens do Jest
+    "esModuleInterop": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]  // Inclua seus arquivos de teste e código-fonte
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/*.spec.ts"]
 }
