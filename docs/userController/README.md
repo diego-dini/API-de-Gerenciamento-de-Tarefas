@@ -8,6 +8,10 @@
 
 ## Index
 
+### Interfaces
+
+- [IUserController](interfaces/IUserController.md)
+
 ### Variables
 
 - [default](variables/default.md)

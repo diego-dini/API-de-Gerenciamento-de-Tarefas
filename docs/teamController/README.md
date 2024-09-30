@@ -8,6 +8,10 @@
 
 ## Index
 
+### Interfaces
+
+- [ITeamController](interfaces/ITeamController.md)
+
 ### Variables
 
 - [default](variables/default.md)

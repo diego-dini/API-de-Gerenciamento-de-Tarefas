@@ -1,30 +1,45 @@
 import { Request, Response } from "express";
 import sessionController from "./sessionController";
-import DatabaseManager, {
-    DatabaseResponse,
-    DatabaseTables,
-} from "./databaseManager";
+import DatabaseManager, { DatabaseTables } from "./databaseManager";
 import databaseSingleton from "./databaseSingleton";
 
-// Create a singleton instance of the DatabaseManager to ensure a single point of database access
+// Create a singleton instance of DatabaseManager to ensure a single point of database access
 const dbManager: DatabaseManager = databaseSingleton();
 
-const teamController = {
-
+/**
+ * Interface for the Team Controller.
+ */
+export interface ITeamController {
     /**
      * Creates a new team if the session is valid.
-     * The owner of the team is either specified in the request body or defaults to the current session user.
-     * The owner is also added as a member of the new team.
      * @param req - Express request object, containing team data in the body.
      * @param res - Express response object.
      */
+    create(req: Request, res: Response): void;
+
+    /**
+     * Deletes a team if the session is valid and the requesting user is the team owner.
+     * @param req - Express request object, containing team id in the body.
+     * @param res - Express response object.
+     */
+    delete(req: Request, res: Response): void;
+
+    /**
+     * Updates a team's details if the session is valid and the requesting user is the team owner.
+     * @param req - Express request object, containing team data and id in the body.
+     * @param res - Express response object.
+     */
+    update(req: Request, res: Response): void;
+}
+
+const teamController: ITeamController = {
     create(req: Request, res: Response) {
         // Validate session
         if (sessionController.validSession(req)) {
             const newTeam = {
                 name: req.body.name, // Team name from request body
                 owner: req.body.owner || req.session.user?.id! // Owner defaults to the session user
-            }
+            };
 
             // Insert new team into the database
             const newTeamResponse = dbManager.insert({ table: DatabaseTables.TEAM, data: newTeam });
@@ -40,12 +55,6 @@ const teamController = {
         }
     },
 
-    /**
-     * Deletes a team if the session is valid and the requesting user is the team owner.
-     * First removes all members of the team, then deletes the team itself.
-     * @param req - Express request object, containing team id in the body.
-     * @param res - Express response object.
-     */
     delete(req: Request, res: Response) {
         // Validate session
         if (sessionController.validSession(req)) {
@@ -60,8 +69,8 @@ const teamController = {
             }
 
             // Check if the requesting user is the team owner
-            if (team.content.owner != req.session.user!.id) {
-                return res.status(401).json({ message: "User not authorized" }); // Fixed typo from "autorized" to "authorized"
+            if (team.content.owner !== req.session.user!.id) {
+                return res.status(401).json({ message: "User not authorized" });
             }
 
             // Remove all team members before deleting the team
@@ -78,15 +87,9 @@ const teamController = {
         }
     },
 
-    /**
-     * Updates a team's details if the session is valid and the requesting user is the team owner.
-     * @param req - Express request object, containing team data and id in the body.
-     * @param res - Express response object.
-     */
     update(req: Request, res: Response) {
         // Validate session
         if (sessionController.validSession(req)) {
-
             const teamId = req.body.id; // Team ID from request body
 
             // Fetch the team from the database
@@ -98,8 +101,8 @@ const teamController = {
             }
 
             // Check if the requesting user is the team owner
-            if (team.content.owner != req.session.user!.id) {
-                return res.status(401).json({ message: "User not authorized" }); // Fixed typo from "autorized" to "authorized"
+            if (team.content.owner !== req.session.user!.id) {
+                return res.status(401).json({ message: "User not authorized" });
             }
 
             // Prepare updated team details
@@ -107,7 +110,7 @@ const teamController = {
                 id: req.body.id, // Team ID
                 name: req.body.name, // New team name from request body
                 owner: req.session.user?.id! // Owner remains the session user
-            }
+            };
 
             // Update the team in the database
             const response = dbManager.update({ table: DatabaseTables.TEAM, data: updatedTeam, column: "id", value: req.body.id });

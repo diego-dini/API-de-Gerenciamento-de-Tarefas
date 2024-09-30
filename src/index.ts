@@ -3,6 +3,7 @@ import session from 'express-session';
 import sessionController from "./sessionController";
 import userController from "./userController";
 import teamController from "./teamController";
+import categoryController from "./categoryController";
 
 const app = express();
 const port = 30000;
@@ -22,6 +23,8 @@ app.post("/update/user",userController.update)
 app.post("/create/team",teamController.create)
 app.post("/update/team",teamController.update)
 app.post("/delete/team",teamController.delete)
+
+app.post("/create/category",categoryController.create)
 
 app.get("/login",sessionController.login)
 app.get("/logout",sessionController.logout)

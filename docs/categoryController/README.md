@@ -2,15 +2,15 @@
 
 ***
 
-[com.docker.devenvironments.code v1.0.0](../README.md) / sessionController
+[com.docker.devenvironments.code v1.0.0](../README.md) / categoryController
 
-# sessionController
+# categoryController
 
 ## Index
 
 ### Interfaces
 
-- [ISessionController](interfaces/ISessionController.md)
+- [ICategoryController](interfaces/ICategoryController.md)
 
 ### Variables
 

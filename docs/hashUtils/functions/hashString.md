@@ -24,4 +24,4 @@ The SHA-256 hash of the input in hexadecimal format, or null if the input is fal
 
 ## Defined in
 
-[hashUtils.ts:9](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/97f461cf7047b749ac664a9b903c45f556eaccb0/src/hashUtils.ts#L9)
+[hashUtils.ts:9](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/hashUtils.ts#L9)

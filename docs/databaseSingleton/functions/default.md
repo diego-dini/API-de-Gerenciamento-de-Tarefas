@@ -19,4 +19,4 @@ The DatabaseManager instance.
 
 ## Defined in
 
-[databaseSingleton.ts:10](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/97f461cf7047b749ac664a9b903c45f556eaccb0/src/databaseSingleton.ts#L10)
+[databaseSingleton.ts:10](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseSingleton.ts#L10)

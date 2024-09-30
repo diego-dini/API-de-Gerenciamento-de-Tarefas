@@ -6,6 +6,7 @@
 
 ## Modules
 
+- [categoryController](categoryController/README.md)
 - [databaseManager](databaseManager/README.md)
 - [databaseSingleton](databaseSingleton/README.md)
 - [hashUtils](hashUtils/README.md)

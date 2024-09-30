@@ -6,34 +6,8 @@
 
 # Variable: default
 
-> `const` **default**: `object`
-
-## Type declaration
-
-### register()
-
-#### Parameters
-
-• **req**: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>
-
-• **res**: `Response`\<`any`, `Record`\<`string`, `any`\>\>
-
-#### Returns
-
-`undefined` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>
-
-### update()
-
-#### Parameters
-
-• **req**: `Request`\<`ParamsDictionary`, `any`, `any`, `ParsedQs`, `Record`\<`string`, `any`\>\>
-
-• **res**: `Response`\<`any`, `Record`\<`string`, `any`\>\>
-
-#### Returns
-
-`undefined` \| `Response`\<`any`, `Record`\<`string`, `any`\>\>
+> `const` **default**: [`IUserController`](../interfaces/IUserController.md)
 
 ## Defined in
 
-[userController.ts:14](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/97f461cf7047b749ac664a9b903c45f556eaccb0/src/userController.ts#L14)
+[userController.ts:30](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/userController.ts#L30)

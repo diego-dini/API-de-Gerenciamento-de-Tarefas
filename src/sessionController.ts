@@ -2,26 +2,45 @@ import { Request, Response } from 'express';
 import DatabaseManager, { DatabaseTables } from './databaseManager';
 import databaseSingleton from './databaseSingleton';
 import { hashString } from './hashUtils'; // Import utility for hashing passwords
-
 import 'express-session'; // Import express-session for managing user sessions
 
 // Extend the express-session interface to include a user object with id and login
 declare module 'express-session' {
     interface SessionData {
-        user: { id: number, login: string };
+        user: { id: number; login: string };
     }
 }
 
 // Create a singleton instance of DatabaseManager
 const dbManager: DatabaseManager = databaseSingleton();
 
-const sessionController = {
+/**
+ * Interface for the Session Controller.
+ */
+export interface ISessionController {
     /**
      * Handles user login by verifying credentials and creating a session.
-     * The login is successful if the user's password hash matches the stored hash.
      * @param req - Express request object containing login and password.
      * @param res - Express response object for sending the login status.
      */
+    login(req: Request, res: Response): void;
+
+    /**
+     * Logs the user out by destroying their session.
+     * @param req - Express request object.
+     * @param res - Express response object for sending the logout status.
+     */
+    logout(req: Request, res: Response): void;
+
+    /**
+     * Checks if the session is valid by verifying if a user is logged in.
+     * @param req - Express request object.
+     * @returns true if the session is valid, false otherwise.
+     */
+    validSession(req: Request): boolean;
+}
+
+const sessionController: ISessionController = {
     login(req: Request, res: Response) {
         // Extract login and password from the request body
         const { login, password } = req.body;
@@ -48,11 +67,6 @@ const sessionController = {
         return res.status(401).json({ message: 'Invalid credentials' });
     },
 
-    /**
-     * Logs the user out by destroying their session.
-     * @param req - Express request object.
-     * @param res - Express response object for sending the logout status.
-     */
     logout(req: Request, res: Response) {
         // Destroy the user's session
         req.session.destroy((err) => {
@@ -66,12 +80,6 @@ const sessionController = {
         });
     },
 
-    /**
-     * Checks if the session is valid by verifying if a user is logged in.
-     * Extends the session timeout by calling `touch()` on the session.
-     * @param req - Express request object.
-     * @returns true if the session is valid, false otherwise.
-     */
     validSession(req: Request): boolean {
         if (req.session.user) {
             // Extend the session duration if the user is logged in

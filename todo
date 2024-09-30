@@ -63,3 +63,6 @@
 [ ] Add Task
     [ ] Update Task
 [ ] Send Email to Task Responsible
+
+FIXES
+[] Update databaseManager status code 

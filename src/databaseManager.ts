@@ -15,6 +15,13 @@ export type DatabaseResponse = {
   content?: any;
 };
 
+const STATUS_CODE = {
+  SUCCESS: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  CONFLICT: 409,
+};
+
 /**
  * Enumeration for the names of database tables.
  * @enum {string}
@@ -370,11 +377,11 @@ export default class DatabaseManager {
     if (this.debugMode) {
       console.error("Database Error:", err);
     }
-
+  
     return {
       code: 400,
-      message: "Bad Request",
-      content: err,
+      message: err.message || "Bad Request",
+      content: null,
     };
   }
 }
