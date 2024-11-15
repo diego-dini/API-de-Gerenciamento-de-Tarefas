@@ -17,7 +17,7 @@ export interface IUserController {
      * @param req - Express request object containing user data in the body.
      * @param res - Express response object.
      */
-    register(req: Request, res: Response): void;
+    create(req: Request, res: Response): void;
 
     /**
      * Handles user updates.
@@ -28,7 +28,7 @@ export interface IUserController {
 }
 
 const userController: IUserController = {
-    register(req: Request, res: Response) {
+    create(req: Request, res: Response) {
         // Validate the email format
         if (!validator.isEmail(req.body.email)) {
             return res.status(400).json({ message: "Invalid E-Mail Address" });

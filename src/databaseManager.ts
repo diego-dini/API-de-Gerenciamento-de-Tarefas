@@ -159,6 +159,8 @@ export default class DatabaseManager {
     this.database = new sqlite3(databasePath);
 
     const schemaPath = path.join(__dirname, "schema.sql");
+    
+    if (!fs.existsSync(databasePath)) return
 
     if (fs.existsSync(schemaPath)) {
       const schema = fs.readFileSync(schemaPath, "utf-8");
@@ -380,7 +382,7 @@ export default class DatabaseManager {
   
     return {
       code: 400,
-      message: err.message || "Bad Request",
+      message: "Bad Request",
       content: null,
     };
   }

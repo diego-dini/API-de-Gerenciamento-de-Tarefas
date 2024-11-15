@@ -55,3 +55,15 @@ CREATE TABLE IF NOT EXISTS status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
 );
+
+
+INSERT OR IGNORE INTO priority (name) VALUES ('low');
+INSERT OR IGNORE INTO priority (name) VALUES ('medium');
+INSERT OR IGNORE INTO priority (name) VALUES ('high');
+
+
+INSERT OR IGNORE INTO status (name) VALUES ('0%');
+INSERT OR IGNORE INTO status (name) VALUES ('25%');
+INSERT OR IGNORE INTO status (name) VALUES ('50%');
+INSERT OR IGNORE INTO status (name) VALUES ('75%');
+INSERT OR IGNORE INTO status (name) VALUES ('100%');

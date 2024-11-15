@@ -1,6 +1,9 @@
 import DatabaseManager from "./databaseManager";
 import path from 'path';
 
+  // Variable to store the singleton instance of DatabaseManager
+  let database: DatabaseManager | null = null;
+
 /**
  * Singleton function that initializes and provides access to a single DatabaseManager instance.
  * Ensures only one instance of the DatabaseManager is created and shared throughout the application.
@@ -8,14 +11,15 @@ import path from 'path';
  * @returns {DatabaseManager} The DatabaseManager instance.
  */
 const databaseSingleton = () => {
-  // Variable to store the singleton instance of DatabaseManager
-  let database: DatabaseManager | null = null;
+
 
   /**
    * Initializes the DatabaseManager instance if it has not already been created.
    */
   function initializeDatabase() {
+
     if (!database) {
+      console.log("Iniciando DB")
       // Create a new instance of DatabaseManager if none exists yet
       const dbPath = path.join(__dirname, "database.db");
       database = new DatabaseManager(dbPath)
