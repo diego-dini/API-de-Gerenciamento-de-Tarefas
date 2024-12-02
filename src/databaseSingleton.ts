@@ -19,10 +19,11 @@ const databaseSingleton = () => {
   function initializeDatabase() {
 
     if (!database) {
-      console.log("Iniciando DB")
+      console.log("[INFO] Starting Database Singleton initialization...");
       // Create a new instance of DatabaseManager if none exists yet
       const dbPath = path.join(__dirname, "database.db");
       database = new DatabaseManager(dbPath)
+      console.log("[INFO] Database Singleton instance successfully created.");
     }
   }
 

@@ -156,18 +156,26 @@ export default class DatabaseManager {
    * @param {string} databasePath - The path to the database file.
    */
   constructor(databasePath: string) {
-    this.database = new sqlite3(databasePath);
-
-    const schemaPath = path.join(__dirname, "schema.sql");
+    if (!fs.existsSync(databasePath)) {
+      console.log("[INFO] Database not found. Creating a new database...");
+    } else {
+      console.log("[INFO] Database found. Loading existing database...");
+    }
     
-    if (!fs.existsSync(databasePath)) return
-
+    this.database = new sqlite3(databasePath);
+    
+    const schemaPath = path.join(__dirname, "schema.sql");
     if (fs.existsSync(schemaPath)) {
+      console.log("[INFO] Schema file found. Loading schema...");
       const schema = fs.readFileSync(schemaPath, "utf-8");
+      console.log("[INFO] Running schema to set up the database...");
       this.database.exec(schema);
     } else {
+      console.error("[ERROR] Schema file not found at:", schemaPath);
       throw new Error("Schema file not found");
     }
+    
+    console.log("[INFO] Database loaded successfully.");
   }
 
   /**

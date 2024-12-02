@@ -3,6 +3,8 @@ import sessionController from "./sessionController";
 import DatabaseManager, { DatabaseTables } from "./databaseManager";
 import databaseSingleton from "./databaseSingleton";
 
+console.log("[INFO] Loading Team Controller...");
+
 // Create a singleton instance of DatabaseManager to ensure a single point of database access
 const dbManager: DatabaseManager = databaseSingleton();
 

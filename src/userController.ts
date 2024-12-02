@@ -5,6 +5,8 @@ import { hashString } from "./hashUtils";
 import sessionController from "./sessionController";
 import validator from "validator";
 
+console.log("[INFO] Loading User Controller...");
+
 // Create a singleton instance of DatabaseManager to ensure a single point of database access
 const dbManager: DatabaseManager = databaseSingleton();
 

@@ -1,3 +1,6 @@
+const timestamp = new Date().toISOString();
+console.log(`[INFO] [${timestamp}] Starting server... Initializing components.`);
+
 import express, { Request, Response } from "express";
 import session from 'express-session';
 import sessionController from "./sessionController";
@@ -33,6 +36,7 @@ app.get("/login",sessionController.login)
 app.get("/logout",sessionController.logout)
 
 app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+  const timestamp = new Date().toISOString();
+  console.log(`[INFO] [${timestamp}] Server is running at http://localhost:${port} - Ready to accept requests.`);
 });
 

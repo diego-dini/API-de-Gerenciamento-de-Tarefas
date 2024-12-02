@@ -41,19 +41,31 @@ CREATE TABLE IF NOT EXISTS team_members (
     PRIMARY KEY (team_id, user_id)
 );
 
+CREATE TABLE IF NOT EXISTS team_invites ( 
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    team_id INTEGER NOT NULL,
+    invite_creator_id INTEGER NOT NULL,
+    invited_id INTEGER NOT NULL,
+    creation_date DATE NOT NULL,
+    valid BOOLEAN NOT NULL,
+    FOREIGN KEY (team_id) REFERENCES team(id),
+    FOREIGN KEY (invite_creator_id) REFERENCES user(id),
+    FOREIGN KEY (invited_id) REFERENCES user(id)
+);
+
 CREATE TABLE IF NOT EXISTS category (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS priority (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS status (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT UNIQUE NOT NULL
 );
 
 
