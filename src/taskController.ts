@@ -8,7 +8,8 @@ import { hashString } from "./hashUtils";
 import sessionController from "./sessionController";
 import validator from "validator";
 
-console.log("[INFO] Loading Task Controller...");
+if(process.argv.includes('verbose'))
+  console.log("[INFO] Loading Task Controller...");
 
 // Create a singleton instance of DatabaseManager to ensure a single point of database access
 const dbManager: DatabaseManager = databaseSingleton();
@@ -19,19 +20,23 @@ export interface ITaskController {
   update(req: Request, res: Response): void;
 }
 
-function isValidTask(obj: any) {
+function findInvalidFields(obj: any) : Array<string>{
+
+  let invalidField:Array<string> = []
+
   // Verifique se obj é um objeto e não está vazio
   if (
     typeof obj !== "object" ||
     obj === null ||
     Object.keys(obj).length === 0
   ) {
-    return false;
+    invalidField.push("Empty Object");
   }
 
   // Verifique se todas as propriedades obrigatórias estão presentes
   const requiredFields = [
     "creationDate",
+    "deadline",
     "name",
     "priority",
     "status",
@@ -40,39 +45,41 @@ function isValidTask(obj: any) {
   ];
   for (const field of requiredFields) {
     if (obj[field] === undefined || obj[field] === null) {
-      return false; // Retorna false se algum campo obrigatório estiver faltando
+      invalidField.push(field);
     }
   }
 
+
+
   // Verifique se creationDate é uma data válida
   if (!validator.isDate(obj.creationDate)) {
-    return false;
+    invalidField.push("Creation Date")
   }
 
   // Verifique se deadline, se fornecida, é uma data válida
   if (obj.deadline && !validator.isDate(obj.deadline)) {
-    return false;
+    invalidField.push("Deadline")
   }
 
   // Validação de tipo para prioridade e status
   if (!Number.isInteger(obj.priority) || obj.priority < 1) {
-    return false; // A prioridade deve ser um número inteiro positivo
+    invalidField.push("Priority")
   }
 
   if (!Number.isInteger(obj.status) || obj.status < 1) {
-    return false; // O status deve ser um número inteiro positivo
+    invalidField.push("Status")
   }
 
   if (!Number.isInteger(obj.team) || obj.team < 1) {
-    return false; // O team deve ser um número inteiro positivo
+    invalidField.push("Team")
   }
 
   if (!Number.isInteger(obj.responsible) || obj.responsible < 1) {
-    return false; // O responsável deve ser um número inteiro positivo
+    invalidField.push("Responsible")
   }
 
   // Se todas as validações passarem, retorne true
-  return true;
+  return invalidField;
 }
 
 const taskController: ITaskController = {
@@ -80,8 +87,10 @@ const taskController: ITaskController = {
     // Validate session
     if (sessionController.validSession(req)) {
       const newTask = req.body;
-      if (!isValidTask(newTask))
-        return res.status(400).json({ message: "Invalid Task" });
+      const invalidFields = findInvalidFields(newTask)
+      if (invalidFields.length > 0)
+        return res.status(400).json({ message: "Invalid Task " + invalidFields.toString() });
+      
       const newTaskResponse = dbManager.insert({
         table: DatabaseTables.TASK,
         data: newTask,

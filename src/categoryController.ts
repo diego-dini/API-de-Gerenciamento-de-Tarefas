@@ -3,8 +3,12 @@ import sessionController from "./sessionController";
 import DatabaseManager, {
     DatabaseResponse,
     DatabaseTables,
+    STATUS_CODE
 } from "./databaseManager";
 import databaseSingleton from "./databaseSingleton";
+
+if(process.argv.includes('verbose'))
+    console.log("[INFO] Loading Category Controller...");
 
 /**
  * Interface for the Category Controller.
@@ -37,7 +41,7 @@ const categoryController: ICategoryController = {
             if (categoryExist.content) {
                 // If the category already exists
                 const content = { id: categoryExist.content.id, name: newCategory };
-                return res.status(categoryExist.code).json({ message: categoryExist.message, content });
+                return res.status(STATUS_CODE.CONFLICT).json({ message: "Category already exists.", content });
             }
 
             // Insert the new category into the database

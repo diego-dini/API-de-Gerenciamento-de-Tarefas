@@ -10,7 +10,7 @@ import path from 'path';
  * 
  * @returns {DatabaseManager} The DatabaseManager instance.
  */
-const databaseSingleton = () => {
+const databaseSingleton = (customdbPath:string|null = null) => {
 
 
   /**
@@ -19,11 +19,13 @@ const databaseSingleton = () => {
   function initializeDatabase() {
 
     if (!database) {
-      console.log("[INFO] Starting Database Singleton initialization...");
+      if(process.argv.includes('verbose'))
+        console.log("[INFO] Starting Database Singleton initialization...");
       // Create a new instance of DatabaseManager if none exists yet
       const dbPath = path.join(__dirname, "database.db");
-      database = new DatabaseManager(dbPath)
-      console.log("[INFO] Database Singleton instance successfully created.");
+      database = new DatabaseManager(customdbPath ?? dbPath)
+      if(process.argv.includes('verbose'))
+        console.log("[INFO] Database Singleton instance successfully created.");
     }
   }
 

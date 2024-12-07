@@ -4,7 +4,8 @@ import databaseSingleton from './databaseSingleton';
 import { hashString } from './hashUtils'; // Import utility for hashing passwords
 import 'express-session'; // Import express-session for managing user sessions
 
-console.log("[INFO] Loading Session Controller...");
+if(process.argv.includes('verbose'))
+    console.log("[INFO] Loading Session Controller...");
 
 // Extend the express-session interface to include a user object with id and login
 declare module 'express-session' {

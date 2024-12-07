@@ -15,7 +15,7 @@ export type DatabaseResponse = {
   content?: any;
 };
 
-const STATUS_CODE = {
+export const STATUS_CODE = {
   SUCCESS: 200,
   CREATED: 201,
   BAD_REQUEST: 400,
@@ -156,26 +156,30 @@ export default class DatabaseManager {
    * @param {string} databasePath - The path to the database file.
    */
   constructor(databasePath: string) {
-    if (!fs.existsSync(databasePath)) {
-      console.log("[INFO] Database not found. Creating a new database...");
-    } else {
-      console.log("[INFO] Database found. Loading existing database...");
-    }
+    if(process.argv.includes('verbose'))
+      if (!fs.existsSync(databasePath)) {
+        console.log("[INFO] Database not found. Creating a new database...");
+      } else {
+        console.log("[INFO] Database found. Loading existing database...");
+      }
     
     this.database = new sqlite3(databasePath);
     
     const schemaPath = path.join(__dirname, "schema.sql");
     if (fs.existsSync(schemaPath)) {
-      console.log("[INFO] Schema file found. Loading schema...");
+      if(process.argv.includes('verbose'))
+        console.log("[INFO] Schema file found. Loading schema...");
       const schema = fs.readFileSync(schemaPath, "utf-8");
-      console.log("[INFO] Running schema to set up the database...");
+      if(process.argv.includes('verbose'))
+        console.log("[INFO] Running schema to set up the database...");
       this.database.exec(schema);
     } else {
-      console.error("[ERROR] Schema file not found at:", schemaPath);
+      if(process.argv.includes('verbose'))
+        console.error("[ERROR] Schema file not found at:", schemaPath);
       throw new Error("Schema file not found");
     }
-    
-    console.log("[INFO] Database loaded successfully.");
+    if(process.argv.includes('verbose'))
+      console.log("[INFO] Database loaded successfully.");
   }
 
   /**
