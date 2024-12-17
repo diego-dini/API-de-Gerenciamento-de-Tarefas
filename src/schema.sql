@@ -43,14 +43,14 @@ CREATE TABLE IF NOT EXISTS team_members (
 
 CREATE TABLE IF NOT EXISTS team_invites ( 
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    team_id INTEGER NOT NULL,
-    invite_creator_id INTEGER NOT NULL,
-    invited_id INTEGER NOT NULL,
-    creation_date DATE NOT NULL,
-    valid BOOLEAN NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES team(id),
-    FOREIGN KEY (invite_creator_id) REFERENCES user(id),
-    FOREIGN KEY (invited_id) REFERENCES user(id)
+    teamId INTEGER NOT NULL,
+    creatorId INTEGER NOT NULL,
+    invitedId INTEGER NOT NULL,
+    creationDate DATE NOT NULL,
+    valid INTEGER NOT NULL,
+    FOREIGN KEY (teamId) REFERENCES team(id),
+    FOREIGN KEY (creatorId) REFERENCES user(id),
+    FOREIGN KEY (invitedId) REFERENCES user(id)
 );
 
 CREATE TABLE IF NOT EXISTS category (

@@ -1,5 +1,5 @@
 import databaseSingleton from '../src/databaseSingleton';
-const db = databaseSingleton();
+const db = databaseSingleton(':memory:');
 
 import request from 'supertest';
 import express from 'express';
@@ -9,6 +9,7 @@ import userController from '../src/userController';
 import teamController from '../src/teamController';
 import categoryController from '../src/categoryController';
 import taskController from '../src/taskController';
+import teamMemberController from "../src/teamMembersController"
 
 const app = express();
 const port = 30000;
@@ -28,6 +29,7 @@ app.post("/update/team", teamController.update);
 app.post("/delete/team", teamController.delete);
 app.post("/create/category", categoryController.create);
 app.post("/create/task", taskController.create);
+app.post("/create/team-invite", teamMemberController.invite);
 app.get("/login", sessionController.login);
 app.get("/logout", sessionController.logout);
 
@@ -203,6 +205,57 @@ describe('Task Tests', () => {
 
         expect(response.status).toBe(401); // Código de status esperado para não autorizado
         expect(response.body).toHaveProperty('message', 'User not authenticated');
+    });
+});
+
+// Test suite for team invite-related functionalities
+describe('Team Invite Tests', () => {
+
+
+
+    it('should create a valid team invite', async () => {
+        expect(sessionCookie).toBeDefined(); // Ensure user is logged in
+
+
+        const user = {
+            name: "Diego2",
+            email: "diego2-diego@diego.diego",
+            login: "diego2",
+            password: "4321"
+        };
+
+        await request(app).post('/create/user').send(user);
+
+
+        const teamInvite = {
+            teamId:1,
+            creatorId: 2, // ID of the user creating the invite
+            invitedId: 1,       // ID of the invited user
+            creationDate: new Date().toISOString(), // Current date and time
+        };
+
+        const response = await request(app)
+            .post('/create/team-invite')
+            .set('Cookie', sessionCookie!) // Include session cookie
+            .send(teamInvite);
+        expect(response.status).toBe(201); // Expect successful creation
+        expect(response.body).toHaveProperty('message', 'Operation Succeeded');
+    });
+
+    it('should fail to create a team invite with missing fields', async () => {
+        expect(sessionCookie).toBeDefined(); // Ensure user is logged in
+
+        const incompleteInvite = {
+            invitedId: 2, // Missing inviteCreatorId and other required fields
+        };
+
+        const response = await request(app)
+            .post('/create/team-invite')
+            .set('Cookie', sessionCookie!) // Include session cookie
+            .send(incompleteInvite);
+
+        expect(response.status).toBe(400); // Expect bad request due to validation error
+        expect(response.body).toHaveProperty('message', 'Invalid data provided');
     });
 });
 

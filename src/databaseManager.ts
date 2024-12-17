@@ -29,6 +29,7 @@ export const STATUS_CODE = {
 export enum DatabaseTables {
   USER = "user",
   TEAM = "team",
+  TEAM_INVITES = "team_invites",
   CATEGORY = "category",
   PRIORITY = "priority",
   STATUS = "status",
@@ -63,6 +64,24 @@ export type Team = {
   id?: number;
   name: string;
   owner: number;
+};
+
+/**
+ * Represents a team invite in the databse.
+ * @typedef {object} Team_invite
+ * @property {number} [id] - The unique indentifier for the team invite.
+ * @property {number} inviteCreatorId - The creator id of the invite.
+ * @property {number} invitedId - The id of ther user invited.
+ * @property {Date} creationDate - The date that the invited was created.
+ * @property {number} valid - The status if the invite still valid.
+ */
+export type TeamInvite = {
+  id?: number;
+  teamId: number;
+  creatorId: number;
+  invitedId: number;
+  creationDate: string;
+  valid: number;
 };
 
 /**
@@ -125,7 +144,14 @@ export type Task = {
   responsible: number;
 };
 
-type DefaultData = User | Team | Category | Priority | Status | Task;
+type DefaultData =
+  | User
+  | Team
+  | Category
+  | Priority
+  | Status
+  | Task
+  | TeamInvite;
 
 /**
  * Represents the parameters for a database request.
@@ -156,29 +182,29 @@ export default class DatabaseManager {
    * @param {string} databasePath - The path to the database file.
    */
   constructor(databasePath: string) {
-    if(process.argv.includes('verbose'))
+    if (process.argv.includes("verbose"))
       if (!fs.existsSync(databasePath)) {
         console.log("[INFO] Database not found. Creating a new database...");
       } else {
         console.log("[INFO] Database found. Loading existing database...");
       }
-    
+
     this.database = new sqlite3(databasePath);
-    
+
     const schemaPath = path.join(__dirname, "schema.sql");
     if (fs.existsSync(schemaPath)) {
-      if(process.argv.includes('verbose'))
+      if (process.argv.includes("verbose"))
         console.log("[INFO] Schema file found. Loading schema...");
       const schema = fs.readFileSync(schemaPath, "utf-8");
-      if(process.argv.includes('verbose'))
+      if (process.argv.includes("verbose"))
         console.log("[INFO] Running schema to set up the database...");
       this.database.exec(schema);
     } else {
-      if(process.argv.includes('verbose'))
+      if (process.argv.includes("verbose"))
         console.error("[ERROR] Schema file not found at:", schemaPath);
       throw new Error("Schema file not found");
     }
-    if(process.argv.includes('verbose'))
+    if (process.argv.includes("verbose"))
       console.log("[INFO] Database loaded successfully.");
   }
 
@@ -200,6 +226,8 @@ export default class DatabaseManager {
         return ["id", "name"];
       case DatabaseTables.TEAM:
         return ["id", "name", "owner"];
+      case DatabaseTables.TEAM_INVITES:
+        return ["id", "teamId", "creatorId", "invitedId", "creationDate", "valid"];
       case DatabaseTables.TASK:
         return [
           "id",
@@ -224,7 +252,10 @@ export default class DatabaseManager {
    * @param {string[]} order - The desired order of columns.
    * @returns {Record<string, any>} - The reordered data object.
    */
-  private reorderData(data: Record<string, any>, order: string[]): Record<string, any> {
+  private reorderData(
+    data: Record<string, any>,
+    order: string[]
+  ): Record<string, any> {
     return Object.fromEntries(order.map((key) => [key, data[key]]));
   }
 
@@ -246,7 +277,6 @@ export default class DatabaseManager {
         .map(() => "?")
         .join(", ");
       const values = Object.values(reorderedData);
-
       const stmt = this.database?.prepare(
         `INSERT INTO ${request.table.toLowerCase()} (${columns}) VALUES (${placeholders})`
       );
@@ -265,14 +295,18 @@ export default class DatabaseManager {
    */
   public delete(request: RequestParams): DatabaseResponse {
     try {
-      if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
+      if (!request.column || !request.value)
+        throw new Error(`Invalid Request Parameters`);
 
       const dataOrder = this.getTypeDataOrder(request.table);
       const column = request.column;
 
-      if (!dataOrder.includes(column)) throw new Error(`Invalid column ${column} in ${request.table}`);
+      if (!dataOrder.includes(column))
+        throw new Error(`Invalid column ${column} in ${request.table}`);
 
-      const stmt = this.database?.prepare(`DELETE FROM ${request.table.toLowerCase()} WHERE ${column} = ?`);
+      const stmt = this.database?.prepare(
+        `DELETE FROM ${request.table.toLowerCase()} WHERE ${column} = ?`
+      );
       const info = stmt?.run(request.value);
       return { code: 200, message: "Operation Succeeded", content: info };
     } catch (err) {
@@ -288,7 +322,8 @@ export default class DatabaseManager {
    */
   public update(request: RequestParams): DatabaseResponse {
     try {
-      if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
+      if (!request.column || !request.value)
+        throw new Error(`Invalid Request Parameters`);
       if (!request.data) throw new Error(`Data can't be null`);
 
       const dataOrder = this.getTypeDataOrder(request.table);
@@ -302,7 +337,9 @@ export default class DatabaseManager {
       const values = Object.values(reorderedData);
 
       const stmt = this.database?.prepare(
-        `UPDATE ${request.table.toLowerCase()} SET ${columns} WHERE ${request.column} = ?`
+        `UPDATE ${request.table.toLowerCase()} SET ${columns} WHERE ${
+          request.column
+        } = ?`
       );
 
       const info = stmt?.run(...values, request.value);
@@ -320,9 +357,12 @@ export default class DatabaseManager {
    */
   public select(request: RequestParams): DatabaseResponse {
     try {
-      if (!request.column || !request.value) throw new Error(`Invalid Request Parameters`);
+      if (!request.column || !request.value)
+        throw new Error(`Invalid Request Parameters`);
       const stmt = this.database?.prepare(
-        `SELECT * FROM ${request.table.toLowerCase()} WHERE ${request.column} = ?`
+        `SELECT * FROM ${request.table.toLowerCase()} WHERE ${
+          request.column
+        } = ?`
       );
       const info = stmt?.get(request.value);
       return { code: 200, message: "Operation Succeeded", content: info };
@@ -374,7 +414,9 @@ export default class DatabaseManager {
    */
   public removeAllTeamMembers(teamId: number): DatabaseResponse {
     try {
-      const stmt = this.database?.prepare("DELETE FROM team_members WHERE team_id = ?");
+      const stmt = this.database?.prepare(
+        "DELETE FROM team_members WHERE team_id = ?"
+      );
       stmt?.run(teamId);
       return { code: 200, message: "All Team Members Removed" };
     } catch (err) {
@@ -391,7 +433,7 @@ export default class DatabaseManager {
     if (this.debugMode) {
       console.error("Database Error:", err);
     }
-  
+
     return {
       code: 400,
       message: "Bad Request",
