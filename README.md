@@ -10,10 +10,6 @@ A API de Gestão de Tarefas oferece endpoints para gerenciar usuários, tarefas,
 - **Detalhes da Tarefa**: Cada tarefa inclui um prazo, um usuário responsável e uma categoria.
 - **Notificações por E-mail**: Usuários registrados recebem um alerta por e-mail quando sua tarefa está se aproximando do prazo.
 
-## Notificações por E-mail
-
-A API envia automaticamente notificações por e-mail para os usuários quando suas tarefas estão se aproximando do prazo.
-
 ## Tratamento de Erros
 
 A API responde com códigos de status HTTP padrão e mensagens de erro. Respostas comuns incluem:
