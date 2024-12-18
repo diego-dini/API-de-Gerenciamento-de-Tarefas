@@ -6,10 +6,14 @@
 
 # Function: default()
 
-> **default**(): [`default`](../../databaseManager/classes/default.md)
+> **default**(`customdbPath`): [`default`](../../databaseManager/classes/default.md)
 
 Singleton function that initializes and provides access to a single DatabaseManager instance.
 Ensures only one instance of the DatabaseManager is created and shared throughout the application.
+
+## Parameters
+
+• **customdbPath**: `null` \| `string` = `null`
 
 ## Returns
 
@@ -19,4 +23,4 @@ The DatabaseManager instance.
 
 ## Defined in
 
-[databaseSingleton.ts:10](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseSingleton.ts#L10)
+[src/databaseSingleton.ts:13](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseSingleton.ts#L13)

@@ -24,4 +24,9 @@
 - [Status](type-aliases/Status.md)
 - [Task](type-aliases/Task.md)
 - [Team](type-aliases/Team.md)
+- [TeamInvite](type-aliases/TeamInvite.md)
 - [User](type-aliases/User.md)
+
+### Variables
+
+- [STATUS\_CODE](variables/STATUS_CODE.md)

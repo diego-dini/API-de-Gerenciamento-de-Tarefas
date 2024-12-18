@@ -10,4 +10,4 @@
 
 ## Defined in
 
-[teamController.ts:35](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/teamController.ts#L35)
+[src/teamController.ts:38](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/teamController.ts#L38)

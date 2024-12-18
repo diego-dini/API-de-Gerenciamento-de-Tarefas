@@ -32,7 +32,7 @@ Express response object.
 
 #### Defined in
 
-[teamController.ts:18](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/teamController.ts#L18)
+[src/teamController.ts:21](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/teamController.ts#L21)
 
 ***
 
@@ -58,7 +58,7 @@ Express response object.
 
 #### Defined in
 
-[teamController.ts:25](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/teamController.ts#L25)
+[src/teamController.ts:28](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/teamController.ts#L28)
 
 ***
 
@@ -84,4 +84,4 @@ Express response object.
 
 #### Defined in
 
-[teamController.ts:32](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/teamController.ts#L32)
+[src/teamController.ts:35](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/teamController.ts#L35)

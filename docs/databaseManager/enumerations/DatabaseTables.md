@@ -16,7 +16,7 @@ Enumeration for the names of database tables.
 
 #### Defined in
 
-[databaseManager.ts:32](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L32)
+[src/databaseManager.ts:33](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L33)
 
 ***
 
@@ -26,7 +26,7 @@ Enumeration for the names of database tables.
 
 #### Defined in
 
-[databaseManager.ts:33](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L33)
+[src/databaseManager.ts:34](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L34)
 
 ***
 
@@ -36,7 +36,7 @@ Enumeration for the names of database tables.
 
 #### Defined in
 
-[databaseManager.ts:34](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L34)
+[src/databaseManager.ts:35](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L35)
 
 ***
 
@@ -46,7 +46,7 @@ Enumeration for the names of database tables.
 
 #### Defined in
 
-[databaseManager.ts:35](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L35)
+[src/databaseManager.ts:36](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L36)
 
 ***
 
@@ -56,7 +56,17 @@ Enumeration for the names of database tables.
 
 #### Defined in
 
-[databaseManager.ts:31](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L31)
+[src/databaseManager.ts:31](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L31)
+
+***
+
+### TEAM\_INVITES
+
+> **TEAM\_INVITES**: `"team_invites"`
+
+#### Defined in
+
+[src/databaseManager.ts:32](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L32)
 
 ***
 
@@ -66,4 +76,4 @@ Enumeration for the names of database tables.
 
 #### Defined in
 
-[databaseManager.ts:30](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L30)
+[src/databaseManager.ts:30](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L30)

@@ -26,4 +26,4 @@ A response object representing the result of a database operation.
 
 ## Defined in
 
-[databaseManager.ts:12](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L12)
+[src/databaseManager.ts:12](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L12)

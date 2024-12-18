@@ -10,4 +10,4 @@
 
 ## Defined in
 
-[sessionController.ts:43](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/sessionController.ts#L43)
+[src/sessionController.ts:46](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/sessionController.ts#L46)

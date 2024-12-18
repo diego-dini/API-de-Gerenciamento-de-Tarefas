@@ -29,7 +29,7 @@ The path to the database file.
 
 #### Defined in
 
-[databaseManager.ts:158](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L158)
+[src/databaseManager.ts:184](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L184)
 
 ## Methods
 
@@ -57,7 +57,7 @@ The ID of the user to be added to the team.
 
 #### Defined in
 
-[databaseManager.ts:326](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L326)
+[src/databaseManager.ts:380](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L380)
 
 ***
 
@@ -85,7 +85,25 @@ The parameters for the delete operation.
 
 #### Defined in
 
-[databaseManager.ts:252](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L252)
+[src/databaseManager.ts:296](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L296)
+
+***
+
+### getAllTTeamMembers()
+
+> **getAllTTeamMembers**(`teamId`): [`DatabaseResponse`](../type-aliases/DatabaseResponse.md)
+
+#### Parameters
+
+• **teamId**: `number`
+
+#### Returns
+
+[`DatabaseResponse`](../type-aliases/DatabaseResponse.md)
+
+#### Defined in
+
+[src/databaseManager.ts:427](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L427)
 
 ***
 
@@ -113,7 +131,7 @@ The parameters for the insert operation.
 
 #### Defined in
 
-[databaseManager.ts:223](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L223)
+[src/databaseManager.ts:268](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L268)
 
 ***
 
@@ -137,7 +155,7 @@ The ID of the team from which all members will be removed.
 
 #### Defined in
 
-[databaseManager.ts:361](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L361)
+[src/databaseManager.ts:415](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L415)
 
 ***
 
@@ -165,7 +183,7 @@ The ID of the user to be removed from the team.
 
 #### Defined in
 
-[databaseManager.ts:344](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L344)
+[src/databaseManager.ts:398](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L398)
 
 ***
 
@@ -189,7 +207,7 @@ The parameters for the select operation.
 
 #### Defined in
 
-[databaseManager.ts:307](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L307)
+[src/databaseManager.ts:358](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L358)
 
 ***
 
@@ -217,4 +235,4 @@ The parameters for the update operation.
 
 #### Defined in
 
-[databaseManager.ts:275](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/databaseManager.ts#L275)
+[src/databaseManager.ts:323](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/databaseManager.ts#L323)

@@ -32,7 +32,7 @@ Express response object for sending the login status.
 
 #### Defined in
 
-[sessionController.ts:26](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/sessionController.ts#L26)
+[src/sessionController.ts:29](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/sessionController.ts#L29)
 
 ***
 
@@ -58,7 +58,7 @@ Express response object for sending the logout status.
 
 #### Defined in
 
-[sessionController.ts:33](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/sessionController.ts#L33)
+[src/sessionController.ts:36](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/sessionController.ts#L36)
 
 ***
 
@@ -82,4 +82,4 @@ true if the session is valid, false otherwise.
 
 #### Defined in
 
-[sessionController.ts:40](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/0a729810d2cf26a474d52eec41dd5669ce3252ea/src/sessionController.ts#L40)
+[src/sessionController.ts:43](https://github.com/diego-dini/API-de-Gerenciamento-de-Tarefas/blob/af5f928f65b5a1b1f01ef851e3d416d5eeef8bc1/src/sessionController.ts#L43)
