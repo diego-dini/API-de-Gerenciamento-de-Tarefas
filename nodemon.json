@@ -2,7 +2,7 @@
     "watch": ["./src"],
     "ext": ".ts",
     "ignore": ["./dist"],
-    "exec": "npx ts-node ./src/index.ts verbose",
+    "exec": "npx ts-node ./src/app.ts verbose",
     "events": {
       "restart": "clear"
     }

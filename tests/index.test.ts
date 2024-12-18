@@ -2,36 +2,7 @@ import databaseSingleton from '../src/databaseSingleton';
 const db = databaseSingleton(':memory:');
 
 import request from 'supertest';
-import express from 'express';
-import session from 'express-session';
-import sessionController from '../src/sessionController';
-import userController from '../src/userController';
-import teamController from '../src/teamController';
-import categoryController from '../src/categoryController';
-import taskController from '../src/taskController';
-import teamMemberController from "../src/teamMembersController"
-
-const app = express();
-const port = 30000;
-
-app.use(express.json());
-app.use(session({
-  secret: 'yourSecretKey',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 60000 }
-}));
-
-app.post("/create/user", userController.create);
-app.post("/update/user", userController.update);
-app.post("/create/team", teamController.create);
-app.post("/update/team", teamController.update);
-app.post("/delete/team", teamController.delete);
-app.post("/create/category", categoryController.create);
-app.post("/create/task", taskController.create);
-app.post("/create/team-invite", teamMemberController.invite);
-app.get("/login", sessionController.login);
-app.get("/logout", sessionController.logout);
+import app from '../src/app'
 
 let sessionCookie: string | undefined;
 
@@ -206,6 +177,33 @@ describe('Task Tests', () => {
         expect(response.status).toBe(401); // Código de status esperado para não autorizado
         expect(response.body).toHaveProperty('message', 'User not authenticated');
     });
+        it('should update a task when logged in', async () => {
+            expect(sessionCookie).toBeDefined();
+    
+            const timestamp = Date.now();
+            const date = new Date(timestamp).toISOString();
+    
+            const task = {
+                id: 1,
+                creationDate: date.split("T")[0],
+                deadline: date.split("T")[0],
+                name: "Teste 2",
+                description:" Teste2  Teste2",
+                category: 1,
+                priority: 1,
+                status: 1,
+                team: 1,
+                responsible: 1
+            };
+    
+            const response = await request(app)
+                .post('/update/task')
+                .set('Cookie', sessionCookie!)
+                .send(task);
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('message', 'Operation Succeeded');
+        
+        });
 });
 
 // Test suite for team invite-related functionalities
@@ -257,5 +255,7 @@ describe('Team Invite Tests', () => {
         expect(response.status).toBe(400); // Expect bad request due to validation error
         expect(response.body).toHaveProperty('message', 'Invalid data provided');
     });
+
+    
 });
 

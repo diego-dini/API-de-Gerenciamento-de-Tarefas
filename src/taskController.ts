@@ -8,7 +8,7 @@ import { hashString } from "./hashUtils";
 import sessionController from "./sessionController";
 import validator from "validator";
 
-if(process.argv.includes('verbose'))
+if (process.argv.includes("verbose"))
   console.log("[INFO] Loading Task Controller...");
 
 // Create a singleton instance of DatabaseManager to ensure a single point of database access
@@ -18,13 +18,12 @@ export interface ITaskController {
   create(req: Request, res: Response): void;
   delete(req: Request, res: Response): void;
   update(req: Request, res: Response): void;
+  get(req: Request, res: Response): void;
 }
 
-function findInvalidFields(obj: any) : Array<string>{
+function findInvalidFields(obj: any): Array<string> {
+  let invalidField: Array<string> = [];
 
-  let invalidField:Array<string> = []
-
-  // Verifique se obj é um objeto e não está vazio
   if (
     typeof obj !== "object" ||
     obj === null ||
@@ -33,7 +32,6 @@ function findInvalidFields(obj: any) : Array<string>{
     invalidField.push("Empty Object");
   }
 
-  // Verifique se todas as propriedades obrigatórias estão presentes
   const requiredFields = [
     "creationDate",
     "deadline",
@@ -49,48 +47,41 @@ function findInvalidFields(obj: any) : Array<string>{
     }
   }
 
-
-
-  // Verifique se creationDate é uma data válida
   if (!validator.isDate(obj.creationDate)) {
-    invalidField.push("Creation Date")
+    invalidField.push("Creation Date");
   }
 
-  // Verifique se deadline, se fornecida, é uma data válida
   if (obj.deadline && !validator.isDate(obj.deadline)) {
-    invalidField.push("Deadline")
+    invalidField.push("Deadline");
   }
 
-  // Validação de tipo para prioridade e status
   if (!Number.isInteger(obj.priority) || obj.priority < 1) {
-    invalidField.push("Priority")
+    invalidField.push("Priority");
   }
 
   if (!Number.isInteger(obj.status) || obj.status < 1) {
-    invalidField.push("Status")
+    invalidField.push("Status");
   }
 
   if (!Number.isInteger(obj.team) || obj.team < 1) {
-    invalidField.push("Team")
+    invalidField.push("Team");
   }
 
   if (!Number.isInteger(obj.responsible) || obj.responsible < 1) {
-    invalidField.push("Responsible")
+    invalidField.push("Responsible");
   }
 
-  // Se todas as validações passarem, retorne true
   return invalidField;
 }
 
 const taskController: ITaskController = {
   create(req: Request, res: Response) {
-    // Validate session
     if (sessionController.validSession(req)) {
       const newTask = req.body;
-      const invalidFields = findInvalidFields(newTask)
+      const invalidFields = findInvalidFields(newTask);
       if (invalidFields.length > 0)
         return res.status(400).json({ message: "Invalid Task " + invalidFields.toString() });
-      
+
       const newTaskResponse = dbManager.insert({
         table: DatabaseTables.TASK,
         data: newTask,
@@ -102,22 +93,106 @@ const taskController: ITaskController = {
           content: newTaskResponse.content,
         });
     } else {
-      // If the user is not authenticated, return a 401 Unauthorized status
       return res.status(401).json({ message: "User not authenticated" });
     }
   },
+
   delete(req: Request, res: Response) {
-    // Validate session
     if (sessionController.validSession(req)) {
-        const taskID = req.body.id;
-        const taskResponse = dbManager.select({table:DatabaseTables.TASK,column:"id",value:taskID})
-        console.log(taskResponse)
+
+      const resquetParams = {
+        table: DatabaseTables.TASK,
+        column: "id",
+        value: req.body.id,
+      }
+
+      const taskResponse = dbManager.select(resquetParams)
+
+      if (taskResponse.content!.owner !== req.session.user!.id && taskResponse.content.responsible !== req.session.user!.id) {
+        return res.status(401).json({ message: "User not authorized" });
+      }
+      const deleteResponse = dbManager.delete(resquetParams)
+
     } else {
-      // If the user is not authenticated, return a 401 Unauthorized status
       return res.status(401).json({ message: "User not authenticated" });
     }
   },
-  update(req: Request, res: Response) {},
+
+  update(req: Request, res: Response) {
+    if (sessionController.validSession(req)) {
+      const taskId = req.body.id;
+      const updatedData = req.body;
+
+      if (!taskId) {
+        return res.status(400).json({ message: "Task ID is required" });
+      }
+
+      const invalidFields = findInvalidFields(updatedData);
+      if (invalidFields.length > 0) {
+        return res.status(400).json({
+          message: "Invalid Task Data: " + invalidFields.join(", "),
+        });
+      }
+
+      const taskExists = dbManager.select({
+        table: DatabaseTables.TASK,
+        column: "id",
+        value: taskId,
+      });
+
+      if (!taskExists.content) {
+        return res.status(404).json({ message: "Task not found" });
+      }
+
+      if (taskExists.content.owner !== req.session.user!.id && taskExists.content.responsible !== req.session.user!.id) {
+        return res.status(401).json({ message: "User not authorized" });
+      }
+
+      const updateResponse = dbManager.update({
+        table: DatabaseTables.TASK,
+        column: "id",
+        data: updatedData,
+        value: taskId,
+      });
+
+      res.status(updateResponse.code).json({
+        message: updateResponse.message,
+        content: updateResponse.content,
+      });
+    } else {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+  },
+
+get(req, res) {
+  if (sessionController.validSession(req)) {
+    const taskId = req.body.id;
+    const updatedData = req.body;
+
+    const taskExists = dbManager.select({
+      table: DatabaseTables.TASK,
+      column: "id",
+      value:  req.session.user!.id.toString(),
+    });
+
+    if (!taskExists.content) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const getResponse = dbManager.update({
+      table: DatabaseTables.TASK,
+      column: "responsible",
+      value: taskId,
+    });
+
+    res.status(getResponse.code).json({
+      message: getResponse.message,
+      content: getResponse.content,
+    });
+  } else {
+    return res.status(401).json({ message: "User not authenticated" });
+  }
+},
 };
 
 export default taskController;

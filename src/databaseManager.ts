@@ -423,6 +423,18 @@ export default class DatabaseManager {
       return this.errorDefaultHandler(err);
     }
   }
+  
+public getAllTTeamMembers(teamId: number):DatabaseResponse {
+  try {
+    const stmt = this.database?.prepare(
+      "SELECT * FROM team_members WHERE team_id = ?"
+    );
+    const team_members = stmt?.all(teamId);
+    return { code: 200, message: "All Team Members Received", content: team_members};
+  } catch (err) {
+    return this.errorDefaultHandler(err);
+  }
+}
 
   /**
    * Handles errors by logging them (if debug mode is enabled) and returning a standardized error response.

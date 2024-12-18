@@ -15,6 +15,7 @@ const dbManager: DatabaseManager = databaseSingleton();
  * Interface to define team members management operations.
  */
 export interface ITeamMembersController {
+  getMembers(req: Request, res: Response): void;
   invite(req: Request, res: Response): void;
   remove(req: Request, res: Response): void;
   accept(req: Request, res: Response): void;
@@ -25,6 +26,36 @@ export interface ITeamMembersController {
  * Implementation of the controller for managing team members.
  */
 const TeamMembersController: ITeamMembersController = {
+  getMembers(req, res) {
+    if (sessionController.validSession(req)) {
+      const teamId = req.body.teamId; // Team ID sent in the request body
+
+      // Fetch the team from the database
+      const team = dbManager.getAllTTeamMembers(teamId)
+      console.log(team)
+      // Return error if the team does not exist
+      if (!team.content) {
+        return res.status(400).json({ message: "Invalid data provided" });
+      }
+
+      // Check if the requesting user is the owner of the team
+      if (team.content.owner !== req.session.user!.id) {
+        return res.status(401).json({ message: "User not authorized" });
+      }
+
+      // Return the response based on the result of the insert operation
+      res
+        .status(team.code)
+        .json({
+          message: team.message,
+          content: team.content,
+        });
+    } else {
+      // Return error if the user is not authenticated
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+  },
+
   /**
    * Method to invite another user to join a team.
    */
@@ -138,7 +169,7 @@ const TeamMembersController: ITeamMembersController = {
       if (!invite.content) {
         return res.status(400).json({ message: "Invalid Invite ID" });
       }
-
+      console.log(req.session.user!.id)
       // Check if the requesting user is the invite recipient
       if (invite.content.invitedId !== req.session.user!.id) {
         return res.status(401).json({ message: "User not authorized" });
